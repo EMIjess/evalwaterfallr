@@ -15,7 +15,7 @@ Maintainer: Jess Chandler <jchandler@emiconsulting.com>
 Description: Rearranges Multiplicative Factors into an Order-independent Waterfall. It organized program and portfolio data into the format necessary for plotting and also plots program and portfolio order independent waterfalls.
 License: GPL(>= 2)
 LazyData: TRUE
-Depends:
+Imports:
     dplyr (>= 0.4.3),
     ggplot2 (>= 1.0.1),
     scales (>= 0.3.0)

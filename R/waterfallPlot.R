@@ -8,6 +8,7 @@
 #' @param ylab title the y axis, default is ""
 #' @param xfactors label the x axis, default is df$variable
 #' @param offset which sets the width of the floating segments, default is "0.3"
+#' @import dplyr ggplot2 scales
 #' @export
 #'
 #' @examples

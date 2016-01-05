@@ -9,7 +9,7 @@
 #' @param altparamnames is an optional vector of names for the parameters, default is the names in df[,1]; if supplied, ensure same order as df
 #' @param output is an optional request for table, takes "none","gross","net","all", default is "all"
 #' @return if output is "all", returns a list of 3 dataframes. Else, if output is "gross", or "net", returns a dataframe with columns variable (character), given, total, calc, decrease, increase, and base (numeric). If output is "none" returns the same, less "calc".
-#'
+#' @import dplyr
 #' @export
 #' @examples
 #'  rawparamdf <- data.frame( # lighting example

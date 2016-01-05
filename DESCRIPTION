@@ -1,0 +1,22 @@
+Package: evalwaterfallr
+Type: Package
+Title: Rearranges Multiplicative Factors into an Order-independent Waterfall
+Version: 0.1
+Date: 2015-10-24
+Authors@R: c(person("Jess", "Chandler", role = c("aut", "cre"), email = "jchandler@emiconsulting.com"),
+              person("Adam", "Sheer", role = "ctb"),
+	            person("Rob", "Kasman", role = "ctb"))
+Author: Jess Chandler [aut, cre],
+  Adam Sheer [ctb],
+  Rob Kasman [ctb]
+Maintainer: Jess Chandler <jchandler@emiconsulting.com>
+Description: Rearranges Multiplicative Factors into an Order-independent Waterfall. It organized program and portfolio data into the format necessary for plotting and also plots program and portfolio order independent waterfalls.
+License: GPL(>= 2)
+LazyData: TRUE
+Imports: 
+    dplyr (>= 0.4.3),
+    ggplot2 (>= 1.0.1),
+    scales (>= 0.3.0)
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

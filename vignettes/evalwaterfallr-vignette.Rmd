@@ -36,10 +36,8 @@ library(knitr)
 knitr::opts_knit$set(upload.fun = image_uri) #embed the images
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 
-printTable <- function(x) {
-    library(xtable)
-    print(xtable::xtable(x), type ="HTML", include.rownames=FALSE, comment = FALSE)
-}
+library(evalwaterfallr)
+
 ```
 
 This document describes how to create order independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but it is not expected. 
@@ -47,18 +45,130 @@ This document describes how to create order independent permutations and waterfa
 ## Motivation
 Evaluated savings (_ex post_) are often shown as either Gross or Net values and compared directly with the Gross or Net reported savings (_ex ante_). The difference in the values depends upon parameters which can be defined as ratios or multiplicative factors. 
 
-## waterfallPrep()
-This function takes the input of multiplicative parameters (up to 10) and the key values of Gross Reported, NTG Reported and NTG Evaluated. All permutations of the order of multiplicative adjustments are determined. The way that @kasmanetaliepec2015 presents the approach is:
+Looking at them in different ways: ordered, order independent permutation ignoring the assumed NTG, and order independent permutation including the assumed NTG allows program staff to determine where to focus energy on improving the program.
+
+The way that @kasmanetaliepec2015 presents the approach is:
 
 1. Perform all possible permutations of the sequential application of multiplicative impact parameter adjustments.
 2. Sum the changes due to each individual impact parameter.
 3. Divide the results of Step 2 by the total number of permutations.
 4. Permute the GRR and $NTG_{RR}$ adjustments.
 5. Re-calculate the impact parameter adjustments maintaining their relative ratios from step 3 such that summing the impact parameter adjustments equals $grr_{N}$.
+6. Plot.
 
-These maths are straightforward, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation, like lighting, requires six permutations, but a four parameter equation requires 24. 
+These maths are straightforward, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation, like lighting, requires six permutations, but a four parameter equation requires 24. This package automates the permutation and creates tables that can be used for creating the waterfall plot (within the package) or exported for other uses.
 
+## waterfallPrep()
+This function takes the input of multiplicative parameters (up to 10) and the key values of Gross Reported, NTG Reported and NTG Evaluated. All permutations of the order of multiplicative adjustments are determined. 
 
+For example, using the data included in the package, `rawparamdf` 
 
+```{r}
+rawparamdf <- data.frame( # lighting example
+                          params = c("ISR","deltaWatts","HOU","x"),
+                          value = c(0.5, 0.7, 1.2, 1.5),
+                          stringsAsFactors = FALSE
+                         )
+
+rawparamdf
+```
+By default, `waterfallPrep()` only requires a Gross Reported (Gross.XA) value and will assume that NTG reported and evaluated are 1 and all three tables are desired.
+
+```{r}
+library(dplyr)
+# assume Gross Reported is 200, NTG.report = 1, and NTG.eval = 1 (defaults)
+waterfallPrep(rawparamdf, 200) #minimal call
+```
+
+Alternatively, we can store one of the output tables, here: "gross".
+```{r}
+library(dplyr)
+# assume Gross Reported is 200, NTG.report = 1, and NTG.eval = 1 (defaults)
+gross_tab <- waterfallPrep(rawparamdf, 200, output="gross") 
+gross_tab
+```
+
+Usually, Gross Reported and NTG values are known and only one table is desired. We can also change the parameter names to something more desirable.
+
+```{r}
+library(dplyr)
+# assume 
+# gross.report is 200, NTG.report = 0.8, and NTG.eval=0.6
+net_tab <- waterfallPrep(rawparamdf, 200, .8, .6, 
+                         altparamnames=NULL, output="net") 
+net_tab
+
+# not run
+# write.csv(net_tab, file="/path/to/dir/net_tab.csv")
+```
+
+The output of `waterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
+ 
 ## waterfallPlot()
+This is the waterfall plotting function. It is inspired by the code developed by James Kierstead \href{http://www.jameskeirstead.ca/blog/waterfall-plots-in-r/}{Post on Watefall Plots with UK Emissions Data}. `waterfallPlot()` assumes the input dataframe is already in order and creates fill categories based on the values in the table. Intermediate totals are plotted here, which are not possible with James' `waterfall()`. For data that are more categorical or do not require intermediate totals, check out his very useful \href{https://gist.github.com/jkeirstead/df85c839bd8f0026ee05#file-waterfall-r}{waterfall gist}.
+
+```{r, fig.width=7, fig.height=6}
+library(ggplot2)
+library(scales)
+library(dplyr)
+waterfallPlot(net_tab)
+```
+
+```{r, fig.width=7, fig.height=6}
+library(ggplot2)
+library(scales)
+library(dplyr)
+# alternatively, we can send a made up table
+rrdf <- data.frame( # made up example
+         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
+        total = c(100, rep(NA, 3), 75),
+         base = c(NA, 75, 50, 50,NA),
+         increase = c(NA, 0, 0, 25, NA),
+         decrease = c(NA, 25, 25, 0, NA))
+waterfallPlot(rrdf)
+```
+
+It is straightforward to change the colors and the labels. 
+```{r, fig.width=7, fig.height=6}
+library(ggplot2)
+library(scales)
+library(dplyr)
+# With another color palette. Note that totals stay grey.
+waterfallPlot(rrdf, palette=c("green","purple"),
+              xlab="Program Evaluation Parameters",
+              ylab="Program Savings (MWh)",
+              xfactors=c("Gross Reported","A",
+                         "B","C","Gross Final"))
+```
+
+When specific fonts or other design issues are preferred, it may be best to modify the `waterfallPlot()` function to meet those needs rather than try to append ggplot2 calls.
+
 ## wParamPermute()
+This function does the underlying permutation. It is called by `waterfallPrep()` to permute the factors passed by df. It returns a dataframe with the same parameter names and the average permuted value. 
+
+For the function call to `waterfallPrep()` above, this is what was sent to and returned within the function. Note: had `altparamnames` been defined, that would have been sent rather than `rawparamdf[,1]`.
+```{r}
+wParamPermute(rawparamdf[,1],rawparamdf[,2])
+```
+
+This function can take quite a bit of time for large order permutations, even if doParallels() is installed.
+
+This is because the number of intermediate values generated increases for 3 factors, you need 6 permutations; for 4, 24. Looking at the system time for arbitrary calls is informative. 
+
+```{r}
+# three
+system.time(wParamPermute(c("ten","five","four"),
+                          c(10,5,4)))
+```
+```{r}
+# five
+system.time(wParamPermute(c("ten","five","four","six","ten"),
+                          c(10,5,4,6,10)))
+```
+```{r}
+# seven
+system.time(wParamPermute(c("ten","five","four","six","ten","two","six"),
+                          c(10,5,4,6,10,2,6)))
+```
+
+# References

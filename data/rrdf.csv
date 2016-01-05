@@ -1,0 +1,6 @@
+"","variable","total","base","increase","decrease"
+"1","Start",100,NA,NA,NA
+"2","Factor 1",NA,75,0,25
+"3","Factor 2",NA,50,0,25
+"4","Factor 3",NA,50,25,0
+"5","End",75,NA,NA,NA

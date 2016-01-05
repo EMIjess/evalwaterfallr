@@ -4,14 +4,15 @@
 #'
 #' @param df a dataframe with columns 'variable' (character), 'total' (numeric),  'base' (numeric), 'increase' (numeric), and 'decrease' (numeric). can have additional columns, ignored. Assumed to have starting value as first row and ending value as last row.
 #' @param palette, default is c("#d7191c","#fdae61","#abdda4","#2b83ba")
-#' @param xlab, default is ""
-#' @param ylab, default is ""
-#' @param offset, default is "0.3"
+#' @param xlab title the x axis, default is ""
+#' @param ylab title the y axis, default is ""
+#' @param xfactors label the x axis, default is df$variable
+#' @param offset which sets the width of the floating segments, default is "0.3"
 #' @export
 #'
 #' @examples
 #'
-#'rrdf <- data.frame( # made up example
+#' rrdf <- data.frame( # made up example
 #'         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
 #'         total = c(100, rep(NA, 3), 75),
 #'         base = c(NA, 75, 50, 50,NA),
@@ -32,7 +33,7 @@
 #' @return a ggplot2 object
 waterfallPlot <- function(df,
                           palette=c("#d7191c","#fdae61","#abdda4","#2b83ba"),
-                          xlab="" ,ylab="",offset=0.3) {
+                          xlab="" ,ylab="", xfactors=NULL, offset=0.3) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("ggplot2 needed for this function to work. Please install it.",
       call. = FALSE)
@@ -48,6 +49,7 @@ waterfallPlot <- function(df,
   options(scipen=999) # avoid scientific notation
   ## Add the order column to the raw data frame and order appropriately
   df <- cbind(df, order = as.numeric(rownames(df)))
+  class(df)
   df <- transform(df, offset=offset)
   # create lines
   df <- df %>%
@@ -67,7 +69,10 @@ waterfallPlot <- function(df,
                                     xend=tail(order, -1),
                                     y=head(liv, -1),
                                     yend=head(liv, -1)))
-
+  ## update the xfactors
+    if(!is.null(xfactors)){
+      myxlabels = xfactors
+    } else {myxlabels=df$variable}
   ## create the labelfill categories
   df$labelfill <- ifelse(is.na(df$decrease), "Total",
                          ifelse(df$decrease==0, "Increase",
@@ -76,8 +81,20 @@ waterfallPlot <- function(df,
   colnoplot <- length(unique(df$labelfill))-1
   myPalette = palette # there is a default or provided by user
   thisPalette <- c(colorRampPalette(myPalette)(colnoplot), "dark grey")
-  maxvalue <- max(df$total, na.rm=TRUE)
-  minvalue <- min(c(0,df$base), na.rm=TRUE) #base or 0 will be minimum
+  maxvalue <- max(as.numeric(df$total), na.rm=TRUE)
+  minvalue <- min(c(0,as.numeric(df$base)), na.rm=TRUE) #base or 0 will be minimum
+
+  # make labels for the total bars
+  # determine digits
+  mydigits <- ifelse(maxvalue<=1, 2,
+                     ifelse(maxvalue<=10,1,0))
+  mydftext <- data.frame(
+    variable = df$variable,
+    order = df$order,
+    mytext = round(df$total,digits=mydigits),
+    myy = df$total+.02*maxvalue
+  )
+
   #plot
   gg <- ggplot() +
     geom_bar(data = df, aes(x=order, y=total),
@@ -88,11 +105,11 @@ waterfallPlot <- function(df,
                           ymax=base+increase+decrease, fill=labelfill)) +
     geom_segment(data=lines, aes(x=x, y=y, xend=xend, yend=yend),
                  linetype="dashed")  +
-    geom_text(data=df, aes(x=order, y=total+.02*maxvalue, label=total))+
+    geom_text(data=mydftext, aes(x=order, y=myy, label=mytext))+
     scale_fill_manual("",values=thisPalette)+
-    scale_x_continuous(breaks=unique(df$order), labels=df$variable)+
+    scale_x_continuous(breaks=unique(df$order), labels=myxlabels)+
     scale_y_continuous(labels = comma, limits=range(c(pretty(minvalue),
-                                                      pretty(maxvalue*1.02))))+
+                                                      pretty(maxvalue)*1.02)))+
     labs(x=xlab, y=ylab) +
     theme_minimal()+
         theme(text=element_text(size=18, family="ProximaNova-Regular"),

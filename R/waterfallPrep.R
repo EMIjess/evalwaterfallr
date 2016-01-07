@@ -204,11 +204,11 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
       net.permute$total[i] <- ifelse(
         net.permute$decrease[i] == 0,
         net.permute$total[3] -
-          sum(net.permute$decrease[4:(i - 1)]) +
-          sum(net.permute$increase[4:(i - 1)]),
+          sum(net.permute$decrease[4:max(4,(i - 1))]) +
+          sum(net.permute$increase[4:max(4,(i - 1))]),
          net.permute$total[3] -
-          sum(net.permute$decrease[4:(i - 1)]) +
-          sum(net.permute$increase[4:(i - 1)]) -
+          sum(net.permute$decrease[4:max(4,(i - 1))]) +
+          sum(net.permute$increase[4:max(4,(i - 1))]) -
           net.permute$decrease[i] + net.permute$increase[i]
       )
     } else if (net.permute$variable[i] %in% c("Net.XP")) {

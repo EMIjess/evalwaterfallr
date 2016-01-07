@@ -29,7 +29,7 @@ deltaWatts <- 1.14 # difference in lighting watts higher as evaluated
 ISR <- 0.63 # Installation Rate (IRR_expost/IRR_exante) smaller as evaluated
 ```
 
-With thes parameters, programs may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance.
+With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance.
 
 Simple Visualization of Non-Permuted Values
 -------------------------------------------
@@ -71,50 +71,34 @@ This plot does not provide any information to those most interested in the net i
 Permuted Values
 ---------------
 
-This package greatly simplifies creating permuted values (compared to doing the matrix calculations in, say Excel).
+This package greatly simplifies creating permuted values (compared to doing the matrix calculations in, say Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
 
 ``` r
 library(evalwaterfallr)
-lighting_given <- waterfallPrep(myparamdf, 
-                                gross.report=100, NTG.report=0.8, NTG.eval=0.6,
+lighting_all <- waterfallPrep(myparamdf, 
+                          gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
-                                output="none") # none means no permutation
+                                output="all")
 #> Warning: doParallel may make this function faster for large order
 #> permutations if it is installed.
-lighting_given
-#>     variable  given    total    base increase decrease
-#> 1   Gross.XA 100.00 100.0000      NA       NA       NA
-#> 2        HOU   0.70       NA 70.0000      0.0  30.0000
-#> 3 deltaWatts   1.14       NA 70.0000      9.8   0.0000
-#> 4        ISR   0.63       NA 50.2740      0.0  29.5260
-#> 5   Gross.XP     NA  50.2740      NA       NA       NA
-#> 6     NTG.XP   0.60       NA 30.1644      0.0  20.1096
-#> 7     Net.XP     NA  30.1644      NA       NA       NA
+lighting_gross <- lighting_all[[2]]
+lighting_net <- lighting_all[[3]]
 ```
 
 ``` r
-par(mfrow=c(1,2))
 library(evalwaterfallr)
-waterfallPlot(waterfallPrep(myparamdf, 
-                          gross.report=100, NTG.report=0.8, NTG.eval=0.6,
-                          altparamnames = NULL,
-                                output="gross")) # gross permutation)
+waterfallPlot(lighting_gross) # gross permutation plot
 ```
 
 ![](README-unnamed-chunk-7-1.png)
 
 ``` r
-waterfallPlot(waterfallPrep(myparamdf, 
-                          gross.report=100, NTG.report=0.8, NTG.eval=0.6,
-                          altparamnames = NULL,
-                                output="net")) # gross permutation)```
+waterfallPlot(lighting_net) # net permutation plot
 ```
 
 ![](README-unnamed-chunk-7-2.png)
 
-``` r
-
-## References
-```
+References
+----------
 
 Kasman, Robert, Adam Scheer, Rachel Sackman, Rafael Friedmann, and Janice Berman. 2015. “Development of Order-Independent Waterfall Graphics to Enable Comprehensive Understanding of Impact Evaluation Results.” *Proceedings of the 2015 International Energy Program Evaluation Conference*.

@@ -55,7 +55,7 @@ HOU <- 0.7 # Hours of lighting use (HOU_expost/HOU_exante) smaller as evaluated
 deltaWatts <- 1.14 # difference in lighting watts higher as evaluated
 ISR <- 0.63 # Installation Rate (IRR_expost/IRR_exante) smaller as evaluated
 ```
-With thes parameters, programs may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance. 
+With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance. 
 
 ## Simple Visualization of Non-Permuted Values
 We can create a waterfall plot that presents these values in this order.
@@ -93,7 +93,6 @@ lighting_gross <- lighting_all[[2]]
 lighting_net <- lighting_all[[3]]
 ```
 ```{r, message=FALSE, warning=FALSE}
-par(mfrow=c(1,2))
 library(evalwaterfallr)
 waterfallPlot(lighting_gross) # gross permutation plot
 waterfallPlot(lighting_net) # net permutation plot

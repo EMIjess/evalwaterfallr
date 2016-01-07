@@ -3,7 +3,7 @@
 #'waterfallPrep() : a function that takes the data on the reported and evaluated savings values and returns the average permuted values of the multiplicative factors and prepare a data frame that is ready for the waterfall plot in R or Excel
 #'
 #' @param df a dataframe with columns 'params' (character) and 'value' (numeric); column names are immaterial. This is the order dependent value.
-#' @param gross.report is the reported gross savings for the program
+#' @param gross.report is the reported gross savings for the program, default is 100
 #' @param NTG.report is the percentage of gross assumed net for program, default is 1
 #' @param NTG.eval is the percentage of gross evaluated net for program, default is 1
 #' @param altparamnames is an optional vector of names for the parameters, default is the names in df[,1]; if supplied, ensure same order as df
@@ -26,7 +26,7 @@
 #'  output = "net")
 #'
 #' @return a data frame object
-waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
+waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
                           altparamnames = NULL,
                           output = "all") {
 
@@ -115,13 +115,12 @@ waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
   nonedropvars <- c("Net.XA", "NTG.XA")
   none <- filter(givendf, variable %ni% nonedropvars) %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
+  none$decrease <- none$increase <- none$base <- NA
   for (i in 2:nrow(none)) {
     none$total[i] <- ifelse(is.na(none$given[i]), none$total[i-1],
                             none$given[i]*none$total[i-1])
-    none$decrease[i] <- ifelse(none$total[i-1] - none$total[i] < 0, 0,
-                               none$total[i-1]  -none$total[i])
-    none$increase[i] <- ifelse(none$total[i] - none$total[i-1] < 0, 0,
-                               none$total[i] - none$total[i-1])
+    none$decrease[i] <- none$total[i-1] - none$total[i]
+    none$increase[i] <- none$total[i] - none$total[i-1]
     # excel requires no change in base for positive change
     none$base[i] <- ifelse(none$variable[i] %in% totalvars, NA,
                            ifelse(none$decrease[i] == 0, none$total[i-1],
@@ -134,6 +133,8 @@ waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
   # columns: total base decrease increase
   gross.permute <- filter(givendf, variable %ni% nonedropvars) %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
+    gross.permute$calc <-    gross.permute$decrease <- gross.permute$increase <- gross.permute$base <- NA
+
   for (i in 2:nrow(gross.permute)) {
     if(gross.permute$variable[i] %in% param.names){ # calc increase and decrease
       gross.permute$calc[i] <- as.numeric(g$avg.xx[i-1])# in same order but no gross
@@ -181,9 +182,12 @@ waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
   net.permute <-
     filter(givendf, variable %ni% "Gross.XP") %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
+
   net.permute$total[3] <- net.permute$total[1] *
     net.permute$total[2]
   net.permute$calc <- NA
+  net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
+
   net.permute$calc[net.permute$variable %in% param.names] <-
     as.numeric(g2$avg.p)
   net.permute$calc[net.permute$variable == "NTG.XP"] <-
@@ -205,11 +209,6 @@ waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
         net.permute$total[i - 1] -
           net.permute$decrease[i] + net.permute$increase[i]
       )
-      #        } else if(net.permute$variable[i]=="NTG.XP"){
-      #        net.permute$total[i] <- ifelse(net.permute$decrease[i] == 0,
-      #                                      net.permute$total[i-1],
-      #                                      net.permute$total[i-1]-
-      #         net.permute$decrease[i] + net.permute$increase[i])
     } else if (net.permute$variable[i] %in% c("Net.XP")) {
       net.permute$total[i] <- net.permute$total[i - 1] +
         net.permute$decrease[i - 1] +

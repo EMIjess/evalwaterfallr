@@ -36,16 +36,7 @@ waterfallPrep <- function(df, gross.report, NTG.report=1, NTG.eval=1,
   }
   # check that data will be valid
   n_params <- nrow(df)
-  if (n_params > 10){ # too much
-    stop("Do you really have more than 10 multiplicative factors? This code can handle up to 10.", call. = FALSE)
-  }
-  if (n_params > 5){ # warn slow
-    if (!requireNamespace("doparallel", quietly = TRUE)) {
-    stop("doparallel needed for this function to work on more than 5 parameters. Please install it.",
-      call. = FALSE)
-  }
-    warning("Do you really have more than 5 multiplicative factors? This code can handle up to 10. Running permutations on more than 5 multiplicative factors will be slow. Please install doParallel.", call. = FALSE)
-  }
+  # remove handling params warnings, in wParamPermute()
 
     # get the parameter labels correct
   if(!is.null(altparamnames)){

@@ -133,7 +133,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   # columns: total base decrease increase
   gross.permute <- filter(givendf, variable %ni% nonedropvars) %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
-    gross.permute$calc <-    gross.permute$decrease <- gross.permute$increase <- gross.permute$base <- NA
+    gross.permute$calc <- gross.permute$decrease <- gross.permute$increase <- gross.permute$base <- NA
 
   for (i in 2:nrow(gross.permute)) {
     if(gross.permute$variable[i] %in% param.names){ # calc increase and decrease
@@ -199,15 +199,20 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   net.permute$increase <- ifelse(net.permute$calc > 0,
                                  net.permute$total[3] * net.permute$calc,
                                  0)
-  for (i in 4:nrow(net.permute)) {
+  net.permute$total[4] <- ifelse(net.permute$decrease[4]==0,#an increase
+                                 net.permute$total[3],
+                                 net.permute$total[3]*(1+net.permute$calc[4]))
+  for (i in 5:nrow(net.permute)) {
     if (net.permute$variable[i] %in% c(param.names,"NTG.XP")) {
       net.permute$total[i] <- ifelse(
-        net.permute$decrease[i] == 0,
+        net.permute$decrease[i] == 0, # an increase
         net.permute$total[3] -
           sum(net.permute$decrease[4:(i - 1)], na.rm=TRUE) +
           sum(net.permute$increase[4:(i - 1)], na.rm=TRUE),
-        net.permute$total[i - 1] -
-          net.permute$decrease[i] + net.permute$increase[i]
+        (net.permute$total[3] -
+          sum(net.permute$decrease[4:(i - 1)], na.rm=TRUE) +
+          sum(net.permute$increase[4:(i - 1)], na.rm=TRUE))+
+          net.permute$total[3]*net.permute$calc[i] #net+dif+this dif
       )
 
     } else if (net.permute$variable[i] %in% c("Net.XP")) {

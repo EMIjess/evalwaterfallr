@@ -189,7 +189,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
 
   net.permute$calc[net.permute$variable %in% param.names] <-
-    as.numeric(g2$avg.p)
+    as.numeric(g2$avg.p) # this is the net permuted values
   net.permute$calc[net.permute$variable == "NTG.XP"] <-
     as.numeric(net.tab.tot$avg.p[2])
   net.permute$decrease <- ifelse(net.permute$calc < 0,
@@ -206,7 +206,9 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
         net.permute$total[3] -
           sum(net.permute$decrease[4:(i - 1)]) +
           sum(net.permute$increase[4:(i - 1)]),
-        net.permute$total[i - 1] -
+         net.permute$total[3] -
+          sum(net.permute$decrease[4:(i - 1)]) +
+          sum(net.permute$increase[4:(i - 1)]) -
           net.permute$decrease[i] + net.permute$increase[i]
       )
     } else if (net.permute$variable[i] %in% c("Net.XP")) {

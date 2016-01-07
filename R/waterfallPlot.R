@@ -82,7 +82,8 @@ waterfallPlot <- function(df,
   colnoplot <- length(unique(df$labelfill))-1
   myPalette = palette # there is a default or provided by user
   thisPalette <- c(colorRampPalette(myPalette)(colnoplot), "dark grey")
-  maxvalue <- max(as.numeric(df$total), na.rm=TRUE)
+  maxvalue <- max(c(as.numeric(df$total),
+                    as.numeric(df$base)+as.numeric(df$increase)), na.rm=TRUE)
   minvalue <- min(c(0,as.numeric(df$base)), na.rm=TRUE) #base or 0 will be minimum
 
   # make labels for the total bars

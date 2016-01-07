@@ -119,8 +119,8 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   for (i in 2:nrow(none)) {
     none$total[i] <- ifelse(is.na(none$given[i]), none$total[i-1],
                             none$given[i]*none$total[i-1])
-    none$decrease[i] <- none$total[i-1] - none$total[i]
-    none$increase[i] <- none$total[i] - none$total[i-1]
+    none$decrease[i] <- ifelse(none$given[i] >=1, 0, none$total[i-1] - none$total[i])
+    none$increase[i] <- ifelse(none$given[i] < 1, 0,none$total[i] - none$total[i-1])
     # excel requires no change in base for positive change
     none$base[i] <- ifelse(none$variable[i] %in% totalvars, NA,
                            ifelse(none$decrease[i] == 0, none$total[i-1],
@@ -214,30 +214,13 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
           sum(net.permute$increase[4:(i - 1)], na.rm=TRUE))+
           net.permute$total[3]*net.permute$calc[i] #net+dif+this dif
       )
-
-    } else if (net.permute$variable[i] %in% c("Net.XP")) {
-      net.permute$total[i] <- net.permute$total[i - 1] +
-        net.permute$decrease[i - 1] +
-        net.permute$increase[i - 1]
-    }
-
+        } else if(net.permute$variable[i] %in% c("Net.XP")){
+      net.permute$total[i] <- ifelse(net.permute$calc[i-1] < 0,
+                                net.permute$total[i-1],
+                                net.permute$total[i-1]+net.permute$increase[i-1])
+        }
   }
-    if(net.permute$variable[i] %in% param.names){
-      net.permute$total[i] <- net.permute$total[i-1]-
-        net.permute$decrease[i] + net.permute$increase[i]
-      } else if(net.permute$variable[i]=="NTG.XP"){
-      net.permute$total[i] <- net.permute$total[i-2]-
-        net.permute$decrease[i] + net.permute$increase[i]
-        } else if(net.permute$variable[i] %in% c("net.XP","Net.XP")){
-      net.permute$total[i] <- net.permute$total[i-1]
-    }
     # excel requires no change in base for positive change
-    net.permute$base[i] <- ifelse(net.permute$variable[i] %in% totalvars, NA,
-                                    ifelse(net.permute$decrease[i] == 0,
-                                           net.permute$total[i-1],
-                                           net.permute$total[i]))
-
-  # excel requires no change in base for positive change
   net.permute$base <-
     ifelse(net.permute$variable %in% c(totalvars,"NTG.XA"),
            NA,

@@ -37,51 +37,62 @@ waterfallPlot <- function(df,
                           xlab="" ,ylab="", xfactors=NULL, offset=0.3) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("ggplot2 needed for this function to work. Please install it.",
-      call. = FALSE)
+         call. = FALSE)
   }
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("dplyr needed for this function to work. Please install it.",
-      call. = FALSE)
+         call. = FALSE)
   }
   if (!requireNamespace("scales", quietly = TRUE)) {
     stop("scales needed for this function to work. Please install it.",
-      call. = FALSE)
+         call. = FALSE)
   }
   options(scipen=999) # avoid scientific notation
   ## Add the order column to the raw data frame and order appropriately
   df <- cbind(df, order = as.numeric(rownames(df)))
   df <- transform(df, offset=offset)
-  # create lines
+
+  ## Create the lines data frame to link the bars
   df <- df %>%
     group_by(order) %>%
-     mutate( min =  min(base, total, na.rm=TRUE),
-             max = max(base+increase, base+decrease, na.rm=TRUE))
+    mutate( min =  ifelse(is.na(base), total,
+                          min(base, total, na.rm=TRUE)),
+            max = ifelse(is.na(base), total,
+                         max(base+increase, base+decrease, na.rm=TRUE)))
+
+  df$dline <- NA
   for(i in 2:nrow(df)){
-    if(df$max[i]==-Inf){
-      df$max[i]=df$max[i-1]
-     } else if(df$max[i]==df$max[i+1]){
-        df$max[i]=df$max[i+1]
-      } else {df$max[i]=df$min[i+1]}
-  }
-  ## Create the lines data frame to link the bars
-    lines <- df %>%
-      group_by(order) %>%
-      mutate(liv = max(min, max, na.rm=TRUE))
-    lines <- with(lines, data.frame(x=head(order, -1),
-                                    xend=tail(order, -1),
-                                    y=head(liv, -1),
-                                    yend=head(liv, -1)))
-  ## update the xfactors
-    if(!is.null(xfactors)){
-      if(length(xfactors)==nrow(df)){
-      myxlabels = xfactors
-      } else {myxlabels=df$variable} #ignore if not the right length.
-    } else {myxlabels=df$variable}
+    if(isTRUE(all.equal(df$max[i],df$max[i-1],df$min[i],df$min[i-1], tol=0.0001))){
+      df$dline[i] <- ifelse(df$increase[i]==0, df$max[i], df$min[i])
+      # this deals with the very special case that 2 parameters cancel out
+    }else if(isTRUE(all.equal(df$max[i],df$max[i-1], tol=0.0001))){
+      df$dline[i] <- df$max[i]
+    } else if(isTRUE(all.equal(df$max[i],df$min[i-1], tol=0.0001))){
+      df$dline[i] <- df$max[i]
+    } else if(isTRUE(all.equal(df$min[i],df$min[i-1], tol=0.0001))){
+      df$dline[i] <- df$min[i]
+    } else {df$dline[i] <- df$min[i]
+    }}
+  lines <- with(df, data.frame(x=head(order, -1),
+                               xend=tail(order, -1),
+                               y=tail(dline, -1)))
+  lines$y[nrow(lines)] <- df$max[nrow(df)]
+  lines$yend <- lines$y
+  ## end lines
+
+  ## update the xfactors for myxlabels
+  if(!is.null(xfactors)){
+    if(length(xfactors)==nrow(df)){
+      myxlabels <- xfactors
+    } else {myxlabels=df$variable} #ignore if not the right length.
+  } else {myxlabels=df$variable}
+  ## end xfactors for labels
+
   ## create the labelfill categories
   df$labelfill <- ifelse(is.na(df$decrease), "Total",
                          ifelse(df$decrease==0, "Increase",
-                         ifelse(df$decrease>=0, "Decrease",
-                                NA)))
+                                ifelse(df$decrease>=0, "Decrease",
+                                       NA)))
   colnoplot <- length(unique(df$labelfill))-1 # right now this is always 2
   myPalette = palette # there is a default or provided by user
   thisPalette <- c(colorRampPalette(myPalette)(colnoplot), "dark grey")
@@ -105,9 +116,9 @@ waterfallPlot <- function(df,
     geom_bar(data = df, aes(x=order, y=total),
              fill = "dark grey", stat="identity") +
     geom_rect(data=df, aes(xmin=order - offset,
-                          xmax=order + offset,
-                          ymin=base,
-                          ymax=base+increase+decrease, fill=labelfill)) +
+                           xmax=order + offset,
+                           ymin=base,
+                           ymax=base+increase+decrease, fill=labelfill)) +
     geom_segment(data=lines, aes(x=x, y=y, xend=xend, yend=yend),
                  linetype="dashed")  +
     geom_text(data=mydftext, aes(x=order, y=myy, label=mytext))+
@@ -117,7 +128,7 @@ waterfallPlot <- function(df,
                                                       pretty(maxvalue)*1.02)))+
     labs(x=xlab, y=ylab) +
     theme_minimal()+
-        theme(text=element_text(size=18, family="ProximaNova-Regular"),
+    theme(text=element_text(size=18, family="ProximaNova-Regular"),
           axis.ticks = element_blank(),
           axis.title.y=element_text(vjust=1),
           panel.grid.minor.y=element_blank(),

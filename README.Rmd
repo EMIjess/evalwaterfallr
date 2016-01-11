@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 ```
 
 ## Motivation
-This package is intended to provide a simple visualization of performance for energy efficiency programs, as argued by @kasmanetaliepec2015. In energy efficiency, expected program impacts are reported (_ex ante_) and then later evaluated (_ex post_). The evaluated savings, when different from the reported values are generally accompanied with reasons, or factors/parameters, explaining the source of changes. However, the order in which the factors are presented can influence how important each factor appears. Permuting the factors to order independent values removes the bias of order.  
+This package is intended to provide a simple visualization of performance for energy efficiency programs, as argued by @kasmanetaliepec2015. In energy efficiency, expected program impacts are reported (_ex ante_) and then later evaluated (_ex post_). The evaluated savings, when different from the reported values, are generally accompanied with reasons or factors/parameters explaining the source of changes. However, the order in which the factors are presented can influence how important each factor appears. Permuting the factors to order independent values removes the bias of order.  
 For an explicit example (taken from @kasmanetaliepec2015), consider a lighting program with the following key values provided: 
 ```{r}
 Gross.XA <- 100 # reported Gross Savings (arbitrary units)
@@ -55,7 +55,7 @@ HOU <- 0.7 # Hours of lighting use (HOU_expost/HOU_exante) smaller as evaluated
 deltaWatts <- 1.14 # difference in lighting watts higher as evaluated
 ISR <- 0.63 # Installation Rate (IRR_expost/IRR_exante) smaller as evaluated
 ```
-With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance. 
+With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, it is difficult to distill importance from these parameters. 
 
 ## Simple Visualization of Non-Permuted Values
 We can create a waterfall plot that presents these values in this order.
@@ -82,7 +82,7 @@ waterfallPlot(lighting_given)
 This plot does not provide any information to those most interested in the net impacts. For those, we must look at the factors in an order independent way, so that we can see their impact on the net value and the gross value, in context.
 
 ## Permuted Values
-This package greatly simplifies creating permuted values (compared to doing the matrix calculations in, say Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
+This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
 ```{r}
 library(evalwaterfallr)
 lighting_all <- waterfallPrep(myparamdf, 

@@ -143,9 +143,11 @@ For the function call to `waterfallPrep()` above, this is what was sent to and r
 wParamPermute(rawparamdf[,1],rawparamdf[,2])
 ```
 
-This function can take quite a bit of time for large order permutations, even if doParallels() is installed. A warning message is always presented that suggests doParallels() will make it faster for large permutations.
 
-This is because the number of intermediate values generated increases for 3 factors, you need 6 permutations; for 4, 24. Looking at the system time for arbitrary calls is informative. 
+
+The number of intermediate values generated is the factorial of the number of parameters. For 3 factors, there are 6 permutations _(3!=6)_; for 5 factors, there are 120 _(5!=120)_; and for 7 factors, there are 5,040 _(7!=5,040)_. Most energy efficiency programs, the primary target of this package, will have fewer than 5 impact parameters to permute.
+
+This function can take quite a bit of time for large order permutations, even if doParallels() is installed. A warning message is always presented that suggests doParallels() will make it faster for large permutations. Looking at the system time for arbitrary calls is informative. 
 
 ```{r}
 # three

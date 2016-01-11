@@ -2,7 +2,7 @@
 Motivation
 ----------
 
-This package is intended to provide a simple visualization of performance for energy efficiency programs, as argued by Kasman et al. (2015). In energy efficiency, expected program impacts are reported (*ex ante*) and then later evaluated (*ex post*). The evaluated savings, when different from the reported values are generally accompanied with reasons, or factors/parameters, explaining the source of changes. However, the order in which the factors are presented can influence how important each factor appears. Permuting the factors to order independent values removes the bias of order.
+This package is intended to provide a simple visualization of performance for energy efficiency programs, as argued by Kasman et al. (2015). In energy efficiency, expected program impacts are reported (*ex ante*) and then later evaluated (*ex post*). The evaluated savings, when different from the reported values, are generally accompanied with reasons or factors/parameters explaining the source of changes. However, the order in which the factors are presented can influence how important each factor appears. Permuting the factors to order independent values removes the bias of order.
 For an explicit example (taken from Kasman et al. (2015)), consider a lighting program with the following key values provided:
 
 ``` r
@@ -29,7 +29,7 @@ deltaWatts <- 1.14 # difference in lighting watts higher as evaluated
 ISR <- 0.63 # Installation Rate (IRR_expost/IRR_exante) smaller as evaluated
 ```
 
-With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, these parameters are difficult to distill into importance.
+With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, it is difficult to distill importance from these parameters.
 
 Simple Visualization of Non-Permuted Values
 -------------------------------------------
@@ -71,7 +71,7 @@ This plot does not provide any information to those most interested in the net i
 Permuted Values
 ---------------
 
-This package greatly simplifies creating permuted values (compared to doing the matrix calculations in, say Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
+This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
 
 ``` r
 library(evalwaterfallr)

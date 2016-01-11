@@ -37,7 +37,7 @@ waterfallPlot <- function(df,
                           palette=c("#d7191c","#2b83ba"),
                           xlab="" , ylab="",
                           xfactors=NULL,
-                          myxtangle = 90,
+                          myxtangle=90,
                           offset=0.3) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("ggplot2 needed for this function to work. Please install it.",
@@ -91,6 +91,12 @@ waterfallPlot <- function(df,
     } else {myxlabels=df$variable} #ignore if not the right length.
   } else {myxlabels=df$variable}
   ## end xfactors for labels
+
+  ## update the myxtextangle
+  if(!is.null(myxtangle)){
+    myxtangle <- myxtangle
+  } else {myxtangle <- 90}
+  ## end my xt angle
 
   ## create the labelfill categories
   df$labelfill <- ifelse(is.na(df$decrease), "Total",

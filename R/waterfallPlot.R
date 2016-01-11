@@ -7,6 +7,7 @@
 #' @param xlab title the x axis, default is ""
 #' @param ylab title the y axis, default is ""
 #' @param xfactors label the x axis; must equal the number of variables, default is df$variable
+#' @param myxtangle angle of the x axis text; default is 90
 #' @param offset which sets the width of the floating segments, default is "0.3"
 #' @import dplyr ggplot2 scales
 #' @export
@@ -34,7 +35,10 @@
 #' @return a ggplot2 object
 waterfallPlot <- function(df,
                           palette=c("#d7191c","#2b83ba"),
-                          xlab="" ,ylab="", xfactors=NULL, offset=0.3) {
+                          xlab="" , ylab="",
+                          xfactors=NULL,
+                          myxtangle = 90,
+                          offset=0.3) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("ggplot2 needed for this function to work. Please install it.",
          call. = FALSE)
@@ -133,7 +137,7 @@ waterfallPlot <- function(df,
           axis.title.y=element_text(vjust=1),
           panel.grid.minor.y=element_blank(),
           panel.grid.major.x=element_blank(),
-          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+          axis.text.x = element_text(angle = myxtangle, vjust = 0.5, hjust=1),
           legend.position="none")
   return(gg)
 } # end of function

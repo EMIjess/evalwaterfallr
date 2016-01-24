@@ -7,6 +7,7 @@
 #' @param xlab title the x axis, default is ""
 #' @param ylab title the y axis, default is ""
 #' @param xfactors label the x axis; must equal the number of variables, default is df$variable
+#' @param xtextangle changes the angle of text on the x axis, default is 90
 #' @param offset which sets the width of the floating segments, default is "0.3"
 #' @import dplyr ggplot2 scales
 #' @export
@@ -36,7 +37,8 @@ waterfallPlot <- function(df,
                           palette=c("#d7191c","#2b83ba"),
                           xlab="" , ylab="",
                           xfactors=NULL,
-                          offset=0.3) {
+                          offset=0.3,
+                          xtextangle = 90) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("ggplot2 needed for this function to work. Please install it.",
          call. = FALSE)
@@ -64,14 +66,16 @@ waterfallPlot <- function(df,
 
   df$dline <- NA
   for(i in 2:nrow(df)){
-    if(isTRUE(all.equal(df$max[i],df$max[i-1],df$min[i],df$min[i-1], tol=0.0001))){
+    if(!is.na(df$total[i])){ # the total bars
+      df$dline[i] <- df$total[i]
+    } else if(isTRUE(all.equal(df$max[i],df$max[i-1],df$min[i],df$min[i-1], tol=0.0001))){
       df$dline[i] <- ifelse(df$increase[i]==0, df$max[i], df$min[i])
       # this deals with the very special case that 2 parameters cancel out
-    }else if(isTRUE(all.equal(df$max[i],df$max[i-1], tol=0.0001))){
+    } else if(isTRUE(all.equal(df$max[i],df$max[i-1], tol=0.001))){
       df$dline[i] <- df$max[i]
-    } else if(isTRUE(all.equal(df$max[i],df$min[i-1], tol=0.0001))){
+    } else if(isTRUE(all.equal(df$max[i],df$min[i-1], tol=0.001))){
       df$dline[i] <- df$max[i]
-    } else if(isTRUE(all.equal(df$min[i],df$min[i-1], tol=0.0001))){
+    } else if(isTRUE(all.equal(df$min[i],df$min[i-1], tol=0.001))){
       df$dline[i] <- df$min[i]
     } else {df$dline[i] <- df$min[i]
     }}
@@ -113,6 +117,11 @@ waterfallPlot <- function(df,
     myy = df$total+.02*maxvalue
   )
 
+  ## update the x axis text angle for myxlabels
+  if(!is.null(xtextangle)){
+    myxangle = as.numeric(xtextangle)
+    } else {myxangle = 90}
+
   #plot
   gg <- ggplot() +
     geom_bar(data = df, aes(x=order, y=total),
@@ -135,7 +144,7 @@ waterfallPlot <- function(df,
           axis.title.y=element_text(vjust=1),
           panel.grid.minor.y=element_blank(),
           panel.grid.major.x=element_blank(),
-          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+          axis.text.x = element_text(angle = myxangle, vjust = 0.5, hjust=1),
           legend.position="none")
   return(gg)
 } # end of function

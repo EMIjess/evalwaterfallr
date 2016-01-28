@@ -110,12 +110,14 @@ waterfallPlot <- function(df,
   # determine digits
   mydigits <- ifelse(maxvalue<=1, 2,
                      ifelse(maxvalue<=10,1,0))
-  mydftext <- data.frame(
-    variable = df$variable,
-    order = df$order,
-    mytext = round(df$total,digits=mydigits),
-    myy = df$total+.02*maxvalue
-  )
+  mydftext <- df %>%
+    group_by(variable) %>%
+    mutate(
+      mytext = round(max(total, increase, decrease, na.rm=TRUE),
+                     digits=mydigits),
+      myy = max + 0.02*maxvalue
+    ) %>%
+    select(variable, order, mytext, myy)
 
   ## update the x axis text angle for myxlabels
   if(!is.null(xtextangle)){

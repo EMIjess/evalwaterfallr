@@ -2,8 +2,9 @@
 Motivation
 ----------
 
-This package is intended to provide a simple visualization of performance for energy efficiency programs, as argued by Kasman et al. (2015). In energy efficiency, expected program impacts are reported (*ex ante*) and then later evaluated (*ex post*). The evaluated savings, when different from the reported values, are generally accompanied with reasons or factors/parameters explaining the source of changes. However, the order in which the factors are presented can influence how important each factor appears. Permuting the factors to order independent values removes the bias of order.
-For an explicit example (taken from Kasman et al. (2015)), consider a lighting program with the following key values provided:
+This package provides a simple visualization tool for the display of energy efficiency program evaluation results as argued by Kasman et al. (2015). Differences between claimed (*ex ante*) and evaluated (*ex post*) savings are most informative and actionable if the reasons behind discrepancies are quantified and reported. A best practice for reporting variations in ex ante and ex post savings is the use of dimensionless multiplicative impact parameters, such as an Hours of Use (HOU) factor that gives the ratio of ex post HOU to ex ante HOU. When impact parameters are reported in this manner, a powerful visualization of quantified discrepancies is made possible. However, the magnitude of a savings discrepancy associated with a given impact parameter is dependent upon the other impact parameters. The interdependence of impact parameter savings adjustments also creates an issue of order-dependence when constructing a graphical representation of ex ante/ex post adjustment. The permutation procedure in Kasman et al. (2015) ensures that graphics are order-independent and normalized.
+
+From that paper, consider a lighting program with the following key values provided:
 
 ``` r
 Gross.XA <- 100 # reported Gross Savings (arbitrary units)
@@ -18,9 +19,7 @@ Net.XP #30
 #> [1] 30
 ```
 
-The source of difference between the reported savings of 80 to the evaluated result of 30 is going to be critical for program improvements.
-
-Let's assume that the evaluator advises that the following impact parameters are driving the estimate of evaluated gross (*ex post* or `Gross.XP`) values. Note that all of these are provided as a realization rate (the ratio of the evaluated parameter to the reported parameter).
+The following impact parameters are reported:
 
 ``` r
 # define impact parameters
@@ -29,12 +28,12 @@ deltaWatts <- 1.14 # difference in lighting watts higher as evaluated
 ISR <- 0.63 # Installation Rate (IRR_expost/IRR_exante) smaller as evaluated
 ```
 
-With these impact parameters, program administrators may want to focus on Installation Rate. However, when provided, as usual, in a table, it is difficult to distill importance from these parameters.
+Here we develop waterfall graphics to quantify the ex ante/ex post savings adjustments as well as net to gross (NTG) adjustments.
 
 Simple Visualization of Non-Permuted Values
 -------------------------------------------
 
-We can create a waterfall plot that presents these values in this order.
+First, we create a waterfall plot that presents an order-dependent application of impact parameters.
 
 ``` r
 # ensure that we have a dataframe ready to put into waterfallPrep()
@@ -66,12 +65,42 @@ waterfallPlot(lighting_given)
 
 ![](README-unnamed-chunk-5-1.png)
 
-This plot does not provide any information to those most interested in the net impacts. For those, we must look at the factors in an order independent way, so that we can see their impact on the net value and the gross value, in context.
+Upon changing the order of the impact parameters, the associated step sizes also change.
+
+``` r
+# change the dataframe  to put into waterfallPrep()
+myparamdf <- data.frame( # lighting example WITH CHANGED ORDER
+                          params = c("deltaWatts","ISR","HOU"),
+                          value = c(1.14, 0.63, 0.7),
+                          stringsAsFactors = FALSE
+                         )
+library(evalwaterfallr)
+lighting_given <- waterfallPrep(myparamdf, 
+                                gross.report=100, NTG.report=0.8, NTG.eval=0.6,
+                          altparamnames = NULL,
+                                output="none") # none means no permutation
+lighting_given
+#>     variable  given    total     base increase decrease
+#> 1   Gross.XA 100.00 100.0000       NA       NA       NA
+#> 2 deltaWatts   1.14       NA 100.0000       14   0.0000
+#> 3        ISR   0.63       NA  71.8200        0  42.1800
+#> 4        HOU   0.70       NA  50.2740        0  21.5460
+#> 5   Gross.XP     NA  50.2740       NA       NA       NA
+#> 6     NTG.XP   0.60       NA  30.1644        0  20.1096
+#> 7     Net.XP     NA  30.1644       NA       NA       NA
+```
+
+``` r
+library(evalwaterfallr)
+waterfallPlot(lighting_given)
+```
+
+![](README-unnamed-chunk-7-1.png)
 
 Permuted Values
 ---------------
 
-This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all at the same time, unless output is otherwise defined.
+For an accurate representation of step size that solves the order-dependence issue, a complicated mathematical procedure is required in which the average of all possible permutations is taken for each impact parameter. This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all as detailed in Kasman et al. (2015)
 
 ``` r
 library(evalwaterfallr)
@@ -90,13 +119,15 @@ library(evalwaterfallr)
 waterfallPlot(lighting_gross) # gross permutation plot
 ```
 
-![](README-unnamed-chunk-7-1.png)
+![](README-unnamed-chunk-9-1.png)
 
 ``` r
 waterfallPlot(lighting_net) # net permutation plot
 ```
 
-![](README-unnamed-chunk-7-2.png)
+![](README-unnamed-chunk-9-2.png)
+
+These graphics are now order-independent and show accurate savings step sizes in both the gross and net domains.
 
 References
 ----------

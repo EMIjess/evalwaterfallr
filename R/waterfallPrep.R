@@ -3,7 +3,7 @@
 #'waterfallPrep() : a function that takes the data on the reported and evaluated savings values and returns the average permuted values of the multiplicative factors and prepare a data frame that is ready for the waterfall plot in R or Excel
 #'
 #' @param df a dataframe with columns 'params' (character) and 'value' (numeric); column names are immaterial. This is the order dependent value.
-#' @param gross.report is the reported gross savings for the program, default is 100
+#' @param gross.report is the reported gross (ex ante) savings for the program, default is 100
 #' @param NTG.report is the percentage of gross assumed net for program, default is 1
 #' @param NTG.eval is the percentage of gross evaluated net for program, default is 1
 #' @param altparamnames is an optional vector of names for the parameters, default is the names in df[,1]; if supplied, ensure same order as df
@@ -240,6 +240,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
            net.permute$total[1] *
              (net.permute$given[net.permute$variable == "NTG.XA"] - 1) ,
            0)
+  net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
   # determine what to output from function
   if(output=="all"){
     return(list("No Permutatation" = none,

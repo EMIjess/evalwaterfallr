@@ -2,13 +2,12 @@
 title: "evalwaterfallr"
 author: "JC"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+rmarkdown::html_vignette
 keep_md: true
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  
   
 ---
 
@@ -24,7 +23,7 @@ source('~/Documents/R_working/evalwaterfallr/R/waterfallPrep.R')
 source('~/Documents/R_working/evalwaterfallr/R/wParamPermute.R')
 ```
 
-This document describes how to create order independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but it is not expected. 
+This document describes how to create order-independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but that scenario it is not expected to occur often.
 
 Permutations of mutliplicative parameters can be completed by straightforward maths, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation requires six permutations, but a four parameter equation requires 24. This package automates the permutation and creates tables that can be used for creating the waterfall plot (within the package) or exported for other uses.
 
@@ -33,17 +32,17 @@ For motivation and relevant readings, please see the package Readme.
 ## waterfallPrep()
 This function takes the input of multiplicative parameters (up to 10) as a dataframe and the key values of Gross Reported, NTG Reported and NTG Evaluated. Note: these terms are from the field of energy efficiency evaluation, but could be extended to other applications. Here are the conceptualizations of the key values:
 
-- **Gross Reported** (`gross.reported`): The total starting value or expected total value. For energy efficiency, this is the total savings expected. The function defaults to 100.
-- **NTG Reported** (`ntg.reported`): The fraction of the total starting value that remains after some expected losses (net starting value), this is the planning fraction. If you assume that the losses are 10%, the `ntg.reported` is 0.9. The function defaults to 1, or no assumed losses or gains.
-- **NTG Evaluated** (`ntg.evaluated`): The fraction of the total ending value that remains after calculated losses (net ending value), this is the known fraction. If you find that the losses are 20%, the `ntg.evaluated` is 0.8. The function defaults to 1, or no assumed losses or gains.
+- **Gross Reported** (`gross.reported`): The gross ex ante savings.  The function defaults to 100.
+- **NTG Reported** (`ntg.reported`): The fraction of the ex ante gross savings that is predicted to occur due to program influence. The function defaults to 1.
+- **NTG Evaluated** (`ntg.evaluated`): The fraction of the gross savings that are found by evaluation to occur due to program influence.  The function defaults to 1, or no assumed losses or gains.
 
 All permutations of the order of multiplicative adjustments are determined by calling `wParamPermute()` inside of `waterfallPrep()`. 
 
-The data included in the package, `rawparamdf`, has four impact parameters, for an imaginary lighting program. They are named: *"ISR","deltaWatts","HOU","x"*. These names are used throughout the code, but they could be any `character` string.
+The data included in the package, `rawparamdf`, has four impact parameters, for an imaginary lighting program. They are named:"ISR","DeltaWatts","HOU","IE" to abbreviate In Service Rate, Delta Watts, Hours of Use, and Interactive Effects, respectively.  These names are used throughout the code, but they could be any `character` string.
 
 ```{r}
 rawparamdf <- data.frame( # lighting example
-                          params = c("ISR","deltaWatts","HOU","x"),
+                          params = c("ISR","deltaWatts","HOU","IE"),
                           value = c(0.5, 0.7, 1.2, 1.5),
                           stringsAsFactors = FALSE
                          )
@@ -52,7 +51,7 @@ rawparamdf
 ```
 By default, `waterfallPrep()` only requires the parameter table, and it will use defaults for key values and assume all tables of output are desired.
 
-```{r, warning=FALSE, message=FALSE}
+```{r, echo=-1, warning=FALSE, message=FALSE}
 library(dplyr)
 waterfallPrep(rawparamdf)# minimal call
 
@@ -66,24 +65,24 @@ waterfallPrep(rawparamdf)# minimal call
 ```
 
 Alternatively, we can store one of the output tables, here: "gross".
-```{r, warning=FALSE, message=FALSE}
+```{r, echo=-1, warning=FALSE, message=FALSE}
 library(dplyr)
 
 gross_tab <- waterfallPrep(rawparamdf, output="gross") 
 gross_tab
 ```
 
-Usually, Gross Reported and NTG values are known, so they should be adjusted from the defaults.  We can also change the parameter names to something more desirable.
+Usually, Gross Reported and NTG values are known, so they should be adjusted from the defaults. The parameter names can also be changed.
 
 Here, let's assume that the Gross Reported (`gross.report`) value is 200 and the NTG fractions (`ntg.report` and `NTG.eval`) are 0.8 and 0.6, respectively. We want to rename our parameters and only get the **net** permutation table. Note that `altparamnames` must have the same number of arguments as `df` has variables (rows). The function will stop with message *"alternate parameter name vector length not the same as parameter length"* if they do not match. 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, echo=-1, warning=FALSE, message=FALSE}
 library(dplyr)
 
 # assume gross.report is 200, NTG.report = 0.8, and NTG.eval=0.6
 net_tab <- waterfallPrep(rawparamdf, 200, .8, .6, 
                          altparamnames=c("Installation\nRates","delta\nWatts",
-                                         "Hours\nof Use","Controls"), 
+                                         "Hours\nof Use","Interactive\nEffects"), 
                          output="net") 
 net_tab
 
@@ -96,9 +95,9 @@ net_tab
 The output of `waterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
  
 ## waterfallPlot()
-This is the waterfall plotting function. It is inspired by the code developed by James Kierstead \href{http://www.jameskeirstead.ca/blog/waterfall-plots-in-r/}{Post on Watefall Plots with UK Emissions Data}. `waterfallPlot()` assumes the input dataframe is already in order and creates fill categories based on the values in the table. Intermediate totals are plotted here, which are not possible with James' `waterfall()`. For data that are more categorical or do not require intermediate totals, check out his very useful \href{https://gist.github.com/jkeirstead/df85c839bd8f0026ee05#file-waterfall-r}{waterfall gist}.
+This is the waterfall plotting function. It is inspired by the code developed by James Kierstead [Post on Watefall Plots with UK Emissions Data](http://www.jameskeirstead.ca/blog/waterfall-plots-in-r/). `waterfallPlot()` assumes the input dataframe is already in order and creates fill categories based on the values in the table. Intermediate totals are plotted here, which are not possible with James' `waterfall()`. For data that are more categorical or do not require intermediate totals, check out his very useful [waterfall gist](https://gist.github.com/jkeirstead/df85c839bd8f0026ee05#file-waterfall-r).
 
-```{r, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
+```{r, echo=4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(scales)
 library(dplyr)
@@ -120,7 +119,7 @@ waterfallPlot(rrdf)
 ```
 
 It is straightforward to change the colors and the labels. However, if `xfactors` is supplied, it must have the same number of arguments as the data frame supplied. If it does not, the default values will be used, but the plot will still render.
-```{r, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
+```{r, echo=3:4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(scales)
 library(dplyr)
@@ -145,9 +144,9 @@ wParamPermute(rawparamdf[,1],rawparamdf[,2])
 
 
 
-The number of intermediate values generated is the factorial of the number of parameters. For 3 factors, there are 6 permutations _(3!=6)_; for 5 factors, there are 120 _(5!=120)_; and for 7 factors, there are 5,040 _(7!=5,040)_. Most energy efficiency programs, the primary target of this package, will have fewer than 5 impact parameters to permute.
+The number of intermediate values generated is the factorial of the number of parameters. For 3 factors, there are 6 permutations _(3!=6)_; for 5 factors, there are 120 _(5!=120)_; and for 7 factors, there are 5,040 _(7!=5,040)_. 
 
-This function can take quite a bit of time for large order permutations, even if doParallels() is installed. A warning message is always presented that suggests doParallels() will make it faster for large permutations. Looking at the system time for arbitrary calls is informative. 
+This function can take significant time for large order permutations, even if doParallels() is installed. A warning message is always presented that suggests doParallels() will make it faster for large permutations. Looking at the system time for arbitrary calls is informative. 
 
 ```{r}
 # three

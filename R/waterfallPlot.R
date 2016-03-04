@@ -114,8 +114,9 @@ waterfallPlot <- function(df,
   mydftext <- df %>%
     group_by(variable) %>%
     mutate(
-      myneg = ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),
-                     "-",""),
+      myneg = ifelse(total == max(total, increase, decrease, na.rm=TRUE), "",
+                     ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),
+                     "-","")),
       mytext = paste0(myneg,round(max(total, increase, decrease, na.rm=TRUE),
                      digits=mydigits)),
       myy = max + 0.05*maxvalue
@@ -151,7 +152,7 @@ waterfallPlot <- function(df,
           panel.grid.major.x=element_blank(),
           axis.text.x = element_text(angle = myxangle, vjust = 0.5, hjust=1),
           legend.position="none",
-          aspect.ratio=4/3) # add an aspect ratio maintainer
+          aspect.ratio=7/10) # add an aspect ratio maintainer
 
   return(gg)
 } # end of function

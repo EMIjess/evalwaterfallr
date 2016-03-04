@@ -89,11 +89,19 @@ waterfallPlot <- function(df,
   ## update the xfactors for myxlabels
   if(!is.null(xfactors)){
     if(length(xfactors)==nrow(df)){
-      myxlabels <- xfactors
+      myxlabels <- as.character(xfactors)
     } else {myxlabels=df$variable} #ignore if not the right length.
-  } else {myxlabels=df$variable}
+  } else {myxlabels=as.character(df$variable)}
   ## end xfactors for labels
+
+  ## wrap very long labels to make graph readable
+  wrap_strings <- function(vector_of_strings,width){
+    sapply(vector_of_strings,
+           FUN=function(x){paste(strwrap(x,width=width), collapse="\n")})
+    }
+  myxlabels <- wrap_strings(myxlabels,10)
   ## REQUEST (not implemented) for parameters, add their given VALUES to the label
+  # not implemented BECAUSE waterfallPlot() does not take param values as an input
 
   ## create the labelfill categories
   df$labelfill <- ifelse(is.na(df$decrease), "Total",
@@ -156,7 +164,7 @@ waterfallPlot <- function(df,
           panel.grid.major.x=element_blank(),
           axis.text.x = element_text(angle = myxangle, vjust = 0.5, hjust=1),
           legend.position="none",
-          aspect.ratio=7/10) # add an aspect ratio maintainer
+          aspect.ratio=7/12) # add an aspect ratio maintainer
 
   return(gg)
 } # end of function

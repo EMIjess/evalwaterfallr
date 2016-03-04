@@ -14,13 +14,13 @@
 #'
 #' @examples
 #'
-# rrdf <- data.frame( # made up example
-#         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
-#         total = c(100, rep(NA, 3), 75),
-#         base = c(NA, 75, 50, 50,NA),
-#         increase = c(NA, 0, 0, 25, NA),
-#         decrease = c(NA, 25, 25, 0, NA))
-#  waterfallPlot(rrdf)
+#' rrdf <- data.frame( # made up example
+#'         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
+#'         total = c(100, rep(NA, 3), 75),
+#'         base = c(NA, 75, 50, 50,NA),
+#'         increase = c(NA, 0, 0, 25, NA),
+#'         decrease = c(NA, 25, 25, 0, NA))
+#'  waterfallPlot(rrdf)
 #'  # With another color palette. Note that totals stay grey.
 #'  waterfallPlot(rrdf, palette=c("green","purple"))
 #'

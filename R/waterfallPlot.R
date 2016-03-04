@@ -135,7 +135,8 @@ waterfallPlot <- function(df,
   if(!is.null(xtextangle)){
     myxangle = as.numeric(xtextangle)
     } else {myxangle = 90}
-
+  myvjust = ifelse(myxangle==90, 0.5, 0)
+  myhjust = ifelse(myxangle==90, 1, .5)
   # fix the sizes
   geom.text.size = 5
   theme.size = (19/5) * geom.text.size
@@ -162,7 +163,7 @@ waterfallPlot <- function(df,
           axis.title.y=element_text(vjust=1),
           panel.grid.minor.y=element_blank(),
           panel.grid.major.x=element_blank(),
-          axis.text.x = element_text(angle = myxangle, vjust = 0.5, hjust=1),
+          axis.text.x = element_text(angle = myxangle, vjust = myvjust, hjust=myhjust),
           legend.position="none",
           aspect.ratio=7/12) # add an aspect ratio maintainer
 

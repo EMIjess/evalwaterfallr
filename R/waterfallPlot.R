@@ -14,13 +14,13 @@
 #'
 #' @examples
 #'
-#' rrdf <- data.frame( # made up example
-#'         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
-#'         total = c(100, rep(NA, 3), 75),
-#'         base = c(NA, 75, 50, 50,NA),
-#'         increase = c(NA, 0, 0, 25, NA),
-#'         decrease = c(NA, 25, 25, 0, NA))
-#'  waterfallPlot(rrdf)
+# rrdf <- data.frame( # made up example
+#         variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
+#         total = c(100, rep(NA, 3), 75),
+#         base = c(NA, 75, 50, 50,NA),
+#         increase = c(NA, 0, 0, 25, NA),
+#         decrease = c(NA, 25, 25, 0, NA))
+#  waterfallPlot(rrdf)
 #'  # With another color palette. Note that totals stay grey.
 #'  waterfallPlot(rrdf, palette=c("green","purple"))
 #'
@@ -114,12 +114,12 @@ waterfallPlot <- function(df,
   mydftext <- df %>%
     group_by(variable) %>%
     mutate(
-      myneg = ifelse(total == max(total, increase, decrease, na.rm=TRUE), "",
-                     ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),
-                     "-","")),
+      myneg = ifelse(is.na(decrease) | decrease==0,
+                     "",
+                     ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),"-","")),
       mytext = paste0(myneg,round(max(total, increase, decrease, na.rm=TRUE),
                      digits=mydigits)),
-      myy = max + 0.05*maxvalue
+      myy = max + 0.03*maxvalue
     ) %>%
     select(variable, order, mytext, myy)
 
@@ -127,6 +127,10 @@ waterfallPlot <- function(df,
   if(!is.null(xtextangle)){
     myxangle = as.numeric(xtextangle)
     } else {myxangle = 90}
+
+  # fix the sizes
+  geom.text.size = 5
+  theme.size = (19/5) * geom.text.size
 
   #plot
   gg <- ggplot() +
@@ -138,14 +142,14 @@ waterfallPlot <- function(df,
                            ymax=base+increase+decrease, fill=labelfill)) +
     geom_segment(data=lines, aes(x=x, y=y, xend=xend, yend=yend),
                  linetype="dashed")  +
-    geom_text(data=mydftext, aes(x=order, y=myy, label=mytext), size=2)+
+    geom_text(data=mydftext, aes(x=order, y=myy, label=mytext), size=geom.text.size)+
     scale_fill_manual("",values=thisPalette)+
     scale_x_continuous(breaks=unique(df$order), labels=myxlabels)+
     scale_y_continuous(labels = comma, limits=range(c(pretty(minvalue),
                                                       pretty(maxvalue)*1.05)))+
     labs(x=xlab, y=ylab) +
     theme_minimal()+
-    theme(text=element_text(size=18, family="ProximaNova-Regular"),
+    theme(text=element_text(size=theme.size, family="ProximaNova-Regular"),
           axis.ticks = element_blank(),
           axis.title.y=element_text(vjust=1),
           panel.grid.minor.y=element_blank(),

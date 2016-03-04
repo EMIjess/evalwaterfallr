@@ -93,6 +93,7 @@ waterfallPlot <- function(df,
     } else {myxlabels=df$variable} #ignore if not the right length.
   } else {myxlabels=df$variable}
   ## end xfactors for labels
+  ## REQUEST (not implemented) for parameters, add their given VALUES to the label
 
   ## create the labelfill categories
   df$labelfill <- ifelse(is.na(df$decrease), "Total",
@@ -113,9 +114,11 @@ waterfallPlot <- function(df,
   mydftext <- df %>%
     group_by(variable) %>%
     mutate(
-      mytext = round(max(total, increase, decrease, na.rm=TRUE),
-                     digits=mydigits),
-      myy = max + 0.02*maxvalue
+      myneg = ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),
+                     "-",""),
+      mytext = paste0(myneg,round(max(total, increase, decrease, na.rm=TRUE),
+                     digits=mydigits)),
+      myy = max + 0.05*maxvalue
     ) %>%
     select(variable, order, mytext, myy)
 
@@ -134,11 +137,11 @@ waterfallPlot <- function(df,
                            ymax=base+increase+decrease, fill=labelfill)) +
     geom_segment(data=lines, aes(x=x, y=y, xend=xend, yend=yend),
                  linetype="dashed")  +
-    geom_text(data=mydftext, aes(x=order, y=myy, label=mytext))+
+    geom_text(data=mydftext, aes(x=order, y=myy, label=mytext), size=2)+
     scale_fill_manual("",values=thisPalette)+
     scale_x_continuous(breaks=unique(df$order), labels=myxlabels)+
     scale_y_continuous(labels = comma, limits=range(c(pretty(minvalue),
-                                                      pretty(maxvalue)*1.02)))+
+                                                      pretty(maxvalue)*1.05)))+
     labs(x=xlab, y=ylab) +
     theme_minimal()+
     theme(text=element_text(size=18, family="ProximaNova-Regular"),
@@ -147,6 +150,8 @@ waterfallPlot <- function(df,
           panel.grid.minor.y=element_blank(),
           panel.grid.major.x=element_blank(),
           axis.text.x = element_text(angle = myxangle, vjust = 0.5, hjust=1),
-          legend.position="none")
+          legend.position="none",
+          aspect.ratio=4/3) # add an aspect ratio maintainer
+
   return(gg)
 } # end of function

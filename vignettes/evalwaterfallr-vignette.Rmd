@@ -2,10 +2,10 @@
 title: "evalwaterfallr"
 author: "JC"
 date: "`r Sys.Date()`"
-rmarkdown::html_vignette
+output: rmarkdown::html_vignette
 keep_md: true
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{evalwaterfallr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   

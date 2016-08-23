@@ -241,6 +241,22 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
              (net.permute$given[net.permute$variable == "NTG.XA"] - 1) ,
            0)
   net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
+
+  # make pretty variable titles
+  niceTblLbl <- function(df) {
+    df$variable[df$variable == "Gross.XA"] <- "Ex Ante Gross"
+    df$variable[df$variable == "NTG.XA"] <- "Ex Ante NTG"
+    df$variable[df$variable == "Net.XA"] <- "Ex Ante Net"
+    df$variable[df$variable == "Gross.XP"] <- "Ex Post Gross"
+    df$variable[df$variable == "NTG.XP"] <- "Ex Post NTG"
+    df$variable[df$variable == "Net.XP"] <- "Ex Post Net"
+    df$variable[df$variable == "NTG.RR"] <- "RR NTG"
+    return(df)
+  }
+  none <- niceTblLbl(none)
+  gross.permute <- niceTblLbl(gross.permute)
+  net.permute <- niceTblLbl(net.permute)
+
   # determine what to output from function
   if(output=="all"){
     return(list("No Permutatation" = none,

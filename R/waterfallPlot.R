@@ -154,7 +154,7 @@ waterfallPlot <- function(df,
     geom_text(data=mydftext, aes(x=order, y=myy, label=mytext), size=geom.text.size)+
     scale_fill_manual("",values=thisPalette)+
     scale_x_continuous(breaks=unique(df$order), labels=myxlabels)+
-    scale_y_continuous(labels = comma, limits=range(c(pretty(minvalue),
+    scale_y_continuous(labels = comma, limits=range(c(minvalue,
                                                       pretty(maxvalue)*1.05)))+
     labs(x=xlab, y=ylab) +
     theme_minimal()+

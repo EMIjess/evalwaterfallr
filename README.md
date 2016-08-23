@@ -48,14 +48,14 @@ lighting_given <- waterfallPrep(myparamdf,
                           altparamnames = NULL,
                                 output="none") # none means no permutation
 lighting_given
-#>     variable  given    total    base increase decrease
-#> 1   Gross.XA 100.00 100.0000      NA       NA       NA
-#> 2        HOU   0.70       NA 70.0000      0.0  30.0000
-#> 3 deltaWatts   1.14       NA 70.0000      9.8   0.0000
-#> 4        ISR   0.63       NA 50.2740      0.0  29.5260
-#> 5   Gross.XP     NA  50.2740      NA       NA       NA
-#> 6     NTG.XP   0.60       NA 30.1644      0.0  20.1096
-#> 7     Net.XP     NA  30.1644      NA       NA       NA
+#>        variable  given    total    base increase decrease
+#> 1 Ex Ante Gross 100.00 100.0000      NA       NA       NA
+#> 2           HOU   0.70       NA 70.0000      0.0  30.0000
+#> 3    deltaWatts   1.14       NA 70.0000      9.8   0.0000
+#> 4           ISR   0.63       NA 50.2740      0.0  29.5260
+#> 5 Ex Post Gross     NA  50.2740      NA       NA       NA
+#> 6   Ex Post NTG   0.60       NA 30.1644      0.0  20.1096
+#> 7   Ex Post Net     NA  30.1644      NA       NA       NA
 ```
 
 ``` r
@@ -80,14 +80,14 @@ lighting_given <- waterfallPrep(myparamdf,
                           altparamnames = NULL,
                                 output="none") # none means no permutation
 lighting_given
-#>     variable  given    total     base increase decrease
-#> 1   Gross.XA 100.00 100.0000       NA       NA       NA
-#> 2 deltaWatts   1.14       NA 100.0000       14   0.0000
-#> 3        ISR   0.63       NA  71.8200        0  42.1800
-#> 4        HOU   0.70       NA  50.2740        0  21.5460
-#> 5   Gross.XP     NA  50.2740       NA       NA       NA
-#> 6     NTG.XP   0.60       NA  30.1644        0  20.1096
-#> 7     Net.XP     NA  30.1644       NA       NA       NA
+#>        variable  given    total     base increase decrease
+#> 1 Ex Ante Gross 100.00 100.0000       NA       NA       NA
+#> 2    deltaWatts   1.14       NA 100.0000       14   0.0000
+#> 3           ISR   0.63       NA  71.8200        0  42.1800
+#> 4           HOU   0.70       NA  50.2740        0  21.5460
+#> 5 Ex Post Gross     NA  50.2740       NA       NA       NA
+#> 6   Ex Post NTG   0.60       NA  30.1644        0  20.1096
+#> 7   Ex Post Net     NA  30.1644       NA       NA       NA
 ```
 
 ``` r

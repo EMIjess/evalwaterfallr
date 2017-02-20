@@ -1,4 +1,15 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
 Motivation
 ----------
 
@@ -42,7 +53,6 @@ myparamdf <- data.frame( # lighting example
                           value = c(0.7, 1.14, 0.63),
                           stringsAsFactors = FALSE
                          )
-library(evalwaterfallr)
 lighting_given <- waterfallPrep(myparamdf, 
                                 gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -59,7 +69,6 @@ lighting_given
 ```
 
 ``` r
-library(evalwaterfallr)
 waterfallPlot(lighting_given)
 ```
 
@@ -74,7 +83,6 @@ myparamdf <- data.frame( # lighting example WITH CHANGED ORDER
                           value = c(1.14, 0.63, 0.7),
                           stringsAsFactors = FALSE
                          )
-library(evalwaterfallr)
 lighting_given <- waterfallPrep(myparamdf, 
                                 gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -91,7 +99,6 @@ lighting_given
 ```
 
 ``` r
-library(evalwaterfallr)
 waterfallPlot(lighting_given)
 ```
 
@@ -103,7 +110,6 @@ Permuted Values
 For an accurate representation of step size that solves the order-dependence issue, a complicated mathematical procedure is required in which the average of all possible permutations is taken for each impact parameter. This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all as detailed in Kasman et al. (2015)
 
 ``` r
-library(evalwaterfallr)
 lighting_all <- waterfallPrep(myparamdf, 
                           gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -118,7 +124,6 @@ lighting_net <- lighting_all[[3]]
 ```
 
 ``` r
-library(evalwaterfallr)
 waterfallPlot(lighting_gross) # gross permutation plot
 ```
 

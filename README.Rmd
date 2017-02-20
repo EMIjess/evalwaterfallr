@@ -31,6 +31,13 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
+library(dplyr)
+library(ggplot2)
+library(scales)
+source('~/Documents/R_working/evalwaterfallr/R/waterfallPlot.R')
+source('~/Documents/R_working/evalwaterfallr/R/waterfallPrep.R')
+source('~/Documents/R_working/evalwaterfallr/R/addwaterfallPrep.R')
+source('~/Documents/R_working/evalwaterfallr/R/wParamPermute.R')
 ```
 
 ## Motivation
@@ -67,7 +74,6 @@ myparamdf <- data.frame( # lighting example
                           value = c(0.7, 1.14, 0.63),
                           stringsAsFactors = FALSE
                          )
-library(evalwaterfallr)
 lighting_given <- waterfallPrep(myparamdf, 
                                 gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -75,7 +81,6 @@ lighting_given <- waterfallPrep(myparamdf,
 lighting_given
 ```
 ```{r, message=FALSE, warning=FALSE}
-library(evalwaterfallr)
 waterfallPlot(lighting_given)
 ```
 
@@ -88,7 +93,6 @@ myparamdf <- data.frame( # lighting example WITH CHANGED ORDER
                           value = c(1.14, 0.63, 0.7),
                           stringsAsFactors = FALSE
                          )
-library(evalwaterfallr)
 lighting_given <- waterfallPrep(myparamdf, 
                                 gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -96,7 +100,6 @@ lighting_given <- waterfallPrep(myparamdf,
 lighting_given
 ```
 ```{r, message=FALSE, warning=FALSE}
-library(evalwaterfallr)
 waterfallPlot(lighting_given)
 ```
 
@@ -104,7 +107,6 @@ waterfallPlot(lighting_given)
 For an accurate representation of step size that solves the order-dependence issue, a complicated mathematical procedure is required in which the average of all possible permutations is taken for each impact parameter. This package greatly simplifies creating permuted values (compared to doing the matrix calculations in a spreadsheet application, such as MS Excel). The function `waterfallPrep()` calculates the tables for no permutation (as shown above), gross permutation, and net permutation all as detailed in @kasmanetaliepec2015
 
 ```{r}
-library(evalwaterfallr)
 lighting_all <- waterfallPrep(myparamdf, 
                           gross.report=100, NTG.report=0.8, NTG.eval=0.6,
                           altparamnames = NULL,
@@ -113,7 +115,6 @@ lighting_gross <- lighting_all[[2]]
 lighting_net <- lighting_all[[3]]
 ```
 ```{r, message=FALSE, warning=FALSE}
-library(evalwaterfallr)
 waterfallPlot(lighting_gross) # gross permutation plot
 waterfallPlot(lighting_net) # net permutation plot
 ```

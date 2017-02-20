@@ -202,7 +202,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     return(list("No Permutatation" = none,
                 "Gross Waterfall" = gross.permute,
                 "Net Waterfall" = net.permute,
-                "Hyrbrid Waterfall" = hybrid.permute))
+                "Hybrid Waterfall" = hybrid.permute))
   } else if(output=="none"){
     return(none)
   } else if(output=="gross"){

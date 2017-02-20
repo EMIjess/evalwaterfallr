@@ -23,20 +23,20 @@ source('~/Documents/R_working/evalwaterfallr/R/waterfallPrep.R')
 source('~/Documents/R_working/evalwaterfallr/R/wParamPermute.R')
 ```
 
-This document describes how to create order-independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but that scenario it is not expected to occur often.
+This document describes how to create order-independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but that scenario it is not expected to occur often. 
 
-Permutations of mutliplicative parameters can be completed by straightforward maths, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation requires six permutations, but a four parameter equation requires 24. This package automates the permutation and creates tables that can be used for creating the waterfall plot (within the package) or exported for other uses.
+Permutations of mutliplicative parameters can be completed by straightforward maths, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation requires six permutations, but a four parameter equation requires 24. This package automates the permutation and creates tables that can be used for creating the waterfall plot (within the package) or exported for other uses. In addition, it extends the methods for additive parameters to ensure consistency in reporting for additive and multiplicative parameters.
 
 For motivation and relevant readings, please see the package Readme.
 
 ## waterfallPrep()
 This function takes the input of multiplicative parameters (up to 10) as a dataframe and the key values of Gross Reported, NTG Reported and NTG Evaluated. Note: these terms are from the field of energy efficiency evaluation, but could be extended to other applications. Here are the conceptualizations of the key values:
 
-- **Gross Reported** (`gross.reported`): The gross ex ante savings.  The function defaults to 100.
-- **NTG Reported** (`ntg.reported`): The fraction of the ex ante gross savings that is predicted to occur due to program influence. The function defaults to 1.
-- **NTG Evaluated** (`ntg.evaluated`): The fraction of the gross savings that are found by evaluation to occur due to program influence.  The function defaults to 1, or no assumed losses or gains.
+- **Gross Reported** (`gross.report`): The gross ex ante savings.  The function defaults to 100.
+- **NTG Reported** (`ntg.report`): The fraction of the ex ante gross savings that is predicted to occur due to program influence. The function defaults to 1.
+- **NTG Evaluated** (`ntg.eval`): The fraction of the gross savings that are found by evaluation to occur due to program influence.  The function defaults to 1, or no assumed losses or gains.
 
-All permutations of the order of multiplicative adjustments are determined by calling `wParamPermute()` inside of `waterfallPrep()`. 
+All permutations of the order of multiplicative adjustments are determined by calling `wParamPermute()` inside of `waterfallPrep()`. This is called separately for the net and hybrid permutations. For the net permutation, the multiplicative parameters and the NTG realization rate (the fraction of `ntg.eval/ntg.report`). For the hybrid permutation, the Reported NTG, the multiplicative parameters, and the NTG realization rate.  
 
 The data included in the package, `rawparamdf`, has four impact parameters, for an imaginary lighting program. They are named:"ISR","DeltaWatts","HOU","IE" to abbreviate In Service Rate, Delta Watts, Hours of Use, and Interactive Effects, respectively.  These names are used throughout the code, but they could be any `character` string.
 
@@ -51,8 +51,9 @@ rawparamdf
 ```
 By default, `waterfallPrep()` only requires the parameter table, and it will use defaults for key values and assume all tables of output are desired.
 
-```{r, echo=-1, warning=FALSE, message=FALSE}
+```{r, echo=-2, warning=FALSE, message=FALSE}
 library(dplyr)
+library(evalwaterfallr)
 waterfallPrep(rawparamdf)# minimal call
 
 
@@ -65,9 +66,9 @@ waterfallPrep(rawparamdf)# minimal call
 ```
 
 Alternatively, we can store one of the output tables, here: "gross".
-```{r, echo=-1, warning=FALSE, message=FALSE}
+```{r, echo=-2, warning=FALSE, message=FALSE}
 library(dplyr)
-
+library(evalwaterfallr)
 gross_tab <- waterfallPrep(rawparamdf, output="gross") 
 gross_tab
 ```
@@ -93,6 +94,9 @@ net_tab
 ```
 
 The output of `waterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
+
+## addwaterfallPrep()
+This function creates the permutations for additive, rather than multiplicative parameters. The output of `addwaterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
  
 ## waterfallPlot()
 This is the waterfall plotting function. It is inspired by the code developed by James Kierstead [Post on Watefall Plots with UK Emissions Data](http://www.jameskeirstead.ca/blog/waterfall-plots-in-r/). `waterfallPlot()` assumes the input dataframe is already in order and creates fill categories based on the values in the table. Intermediate totals are plotted here, which are not possible with James' `waterfall()`. For data that are more categorical or do not require intermediate totals, check out his very useful [waterfall gist](https://gist.github.com/jkeirstead/df85c839bd8f0026ee05#file-waterfall-r).

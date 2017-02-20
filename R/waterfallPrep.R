@@ -51,9 +51,9 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   #
   ########################################
 
-  #g <- wParamPermute(param.names = param.names, values = df[,2])
+  g <- wParamPermute(param.names = param.names, values = df[,2])
   # g has the order independent values for each parameter!!!!
-  # as of Feb 19, 2017, include ntg.rr in permutation with parameters
+  # as of Feb 19, 2017, include ntg.rr in permutation with parameters for Net
   gx <- wParamPermute(param.names = c(param.names,"NTG.RR"), values = c(df[,2], NTG.eval/NTG.report))
   gh <- wParamPermute(param.names = c("NTG.XA",param.names,"NTG.RR"),
                       values = c(NTG.report, df[,2], NTG.eval/NTG.report))
@@ -254,6 +254,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   # make pretty variable titles
   #
   ###################################
+  gross.permute$calc <- net.permute$calc <- NULL
   niceTblLbl <- function(df) {
     df$variable[df$variable == "Gross.XA"] <- "Ex Ante Gross"
     df$variable[df$variable == "NTG.XA"] <- "Ex Ante NTG"
@@ -275,7 +276,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     return(list("No Permutatation" = none,
               "Gross Waterfall" = gross.permute,
               "Net Waterfall" = net.permute,
-              "Hyrbrid Waterfall" = hybrid.permute))
+              "Hybrid Waterfall" = hybrid.permute))
   } else if(output=="none"){
     return(none)
   } else if(output=="gross"){

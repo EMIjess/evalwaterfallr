@@ -34,7 +34,7 @@
 #'
 #' @return a ggplot2 object
 waterfallPlot <- function(df,
-                          palette=c("#d7191c","#2b83ba"),
+                          palette=c("#CC3300","#009900"), #websafe red and green
                           xlab="" , ylab="",
                           xfactors=NULL,
                           offset=0.3,
@@ -115,6 +115,11 @@ waterfallPlot <- function(df,
                     as.numeric(df$base)+as.numeric(df$increase)), na.rm=TRUE)
   minvalue <- min(c(0,as.numeric(df$base)), na.rm=TRUE) #base or 0 will be minimum
 
+  ## set up the limits and y axis labels
+  # documentation for pretty here
+  # https://stat.ethz.ch/R-manual/R-devel/library/base/html/pretty.html
+  mybreaks <- pretty(minvalue, maxvalue)
+
   # make labels for the total bars
   # determine digits
   mydigits <- ifelse(maxvalue<=1, 2,
@@ -154,8 +159,7 @@ waterfallPlot <- function(df,
     geom_text(data=mydftext, aes(x=order, y=myy, label=mytext), size=geom.text.size)+
     scale_fill_manual("",values=thisPalette)+
     scale_x_continuous(breaks=unique(df$order), labels=myxlabels)+
-    scale_y_continuous(labels = comma, limits=range(c(minvalue,
-                                                      pretty(maxvalue)*1.05)))+
+    scale_y_continuous(labels = comma, breaks = mybreaks) +
     labs(x=xlab, y=ylab) +
     theme_minimal()+
     theme(text=element_text(size=theme.size, family="ProximaNova-Regular"),

@@ -83,10 +83,12 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   none$total <- ifelse(none$variable %in% totalvars,
                        none$total,
                        NA)
-  # make gross.permute table for EXCEL Waterfall - no permutation on GROSS for Additive!!!
+  # make gross.permute table - no permutation on GROSS for Additive!!!
   # columns: total base decrease increase
   gross.permute <- none
 
+  # make net.permute table
+  # columns: total base decrease increase
   net.permute <- if(NTG.report==1 & NTG.eval==1){
     gross.permute  #if NTG is 1, no permutation necessary!
   }else{
@@ -94,7 +96,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
       mutate(a = .5 * value * (NTG.report + NTG.eval))
     net.permute <- filter(givendf, variable %ni% "Gross.XP")  # remove vars
     net.permute <- left_join(net.permute, select(dfp, variable = params, a)) %>%
-       mutate(total = ifelse(is.na(a), given, NA))
+      mutate(total = ifelse(is.na(a), given, NA))
     # set up empty table
     net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
     # calculate Net.XA
@@ -102,35 +104,81 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     net.permute$base[2] <-  net.permute$base[3] <- min(net.permute$total[1], net.permute$total[3])
     net.permute$increase[2] <- ifelse(net.permute$given[2] < 1, 0, net.permute$total[3]-net.permute$total[1])
     net.permute$decrease[2] <- ifelse(net.permute$given[2] > 1, 0, net.permute$total[1]-net.permute$total[3])
-   for (i in 4:nrow(net.permute)) {
-    if(net.permute$variable[i] %in% param.names){ # calc increase and decrease
-      net.permute$decrease[i] <- ifelse(net.permute$a[i] < 0,
-                                  net.permute$a[i]*(-1),
+    for (i in 4:nrow(net.permute)) {
+      if(net.permute$variable[i] %in% param.names){ # calc increase and decrease
+        net.permute$decrease[i] <- ifelse(net.permute$a[i] < 0,
+                                          net.permute$a[i]*(-1),
                                           0)
-      net.permute$increase[i] <- ifelse(net.permute$a[i] > 0,
-                                  net.permute$a[i],
+        net.permute$increase[i] <- ifelse(net.permute$a[i] > 0,
+                                          net.permute$a[i],
                                           0)
-      net.permute$base[i] <- min(net.permute$base[i-1] +
-                                   ifelse(is.na(net.permute$increase[i-1]),0,net.permute$increase[i-1]),
-                                 net.permute$base[i-1] +
-                                   ifelse(is.na(net.permute$increase[i-1]),0,
-                                          net.permute$increase[i-1]) + net.permute$a[i])
-    } else if(net.permute$variable[i]=="NTG.XP"){
-      NTG_mult <- 0.5*((NTG.eval/NTG.report)-1)*(2*NTG.report*gross.report + NTG.report*sum(df$value))
-      net.permute$decrease[i] <- ifelse(NTG_mult < 0, NTG_mult * (-1), 0)
-      net.permute$increase[i] <- ifelse(NTG_mult > 0, NTG_mult, 0)
-      net.permute$base[i] <- min(net.permute$base[i-1], net.permute$base[i-1] + NTG_mult)
-    } else if(net.permute$variable[i]=="Net.XP"){
-      net.permute$total[i] <- net.permute$total[3]+sum(dfp$a)+ NTG_mult
+        net.permute$base[i] <- min(net.permute$base[i-1] +
+                                     ifelse(is.na(net.permute$increase[i-1]),0,net.permute$increase[i-1]),
+                                   net.permute$base[i-1] +
+                                     ifelse(is.na(net.permute$increase[i-1]),0,
+                                            net.permute$increase[i-1]) + net.permute$a[i])
+      } else if(net.permute$variable[i]=="NTG.XP"){
+        NTG_mult <- 0.5*((NTG.eval/NTG.report)-1)*(2*NTG.report*gross.report + NTG.report*sum(df$value))
+        net.permute$decrease[i] <- ifelse(NTG_mult < 0, NTG_mult * (-1), 0)
+        net.permute$increase[i] <- ifelse(NTG_mult > 0, NTG_mult, 0)
+        net.permute$base[i] <- min(net.permute$base[i-1], net.permute$base[i-1] + NTG_mult)
+      } else if(net.permute$variable[i]=="Net.XP"){
+        net.permute$total[i] <- net.permute$total[3]+sum(dfp$a)+ NTG_mult
+      }
     }
-   }
-      net.permute$total[which(net.permute$variable %ni% totalvars)] <-  NA
-      net.permute$base[which(net.permute$variable %in% totalvars)] <-  NA
-     }
+    net.permute$total[which(net.permute$variable %ni% totalvars)] <-  NA
+    net.permute$base[which(net.permute$variable %in% totalvars)] <-  NA
+    net.permute$a <- NULL
+  }
 
   hybrid.permute <- if(NTG.report==1 & NTG.eval==1){
     gross.permute  #if NTG is 1, no permutation necessary!
+  }else{
+    dfp <- df %>%
+      mutate(a = (1/3) * value * (1+ NTG.eval + 0.5 *(NTG.report + NTG.eval/NTG.report)))
+    hybrid.permute <- filter(givendf, variable %ni% "Gross.XP")  # remove vars
+    hybrid.permute <- left_join(hybrid.permute, select(dfp, variable = params, a)) %>%
+      mutate(total = ifelse(is.na(a), given, NA))
+    # set up empty table
+    hybrid.permute$decrease <- hybrid.permute$increase <- hybrid.permute$base <- NA
+    # calculate Net.XA
+    NTG_multxa <- (1/3)*(NTG.report-1)*
+          ((3/2)*gross.report * (1+NTG.eval/NTG.report) + sum(df$value) * (.5 + NTG.eval/NTG.report))
+    hybrid.permute$total[3] <- hybrid.permute$total[1] + NTG_multxa
+    hybrid.permute$base[2] <-  hybrid.permute$base[3] <- min(hybrid.permute$total[1], hybrid.permute$total[3])
+    hybrid.permute$increase[2] <- ifelse(NTG.report < 1, 0, hybrid.permute$total[3]-hybrid.permute$total[1])
+    hybrid.permute$decrease[2] <- ifelse(NTG.report > 1, 0, hybrid.permute$total[1]-hybrid.permute$total[3])
+    for (i in 4:nrow(hybrid.permute)) {
+      if(hybrid.permute$variable[i] %in% param.names){ # calc increase and decrease
+        hybrid.permute$decrease[i] <- ifelse(hybrid.permute$a[i] < 0,
+                                          hybrid.permute$a[i]*(-1),
+                                          0)
+        hybrid.permute$increase[i] <- ifelse(hybrid.permute$a[i] > 0,
+                                          hybrid.permute$a[i],
+                                          0)
+        hybrid.permute$base[i] <- min(hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,hybrid.permute$increase[i-1]),
+                                   hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,
+                                            hybrid.permute$increase[i-1]) + hybrid.permute$a[i])
+      } else if(hybrid.permute$variable[i]=="NTG.XP"){
+        NTG_mult <- (1/3)*((NTG.eval/NTG.report)-1)*
+          ((3/2)*gross.report * (1+NTG.report) + sum(df$value) * (.5 + NTG.report))
+        hybrid.permute$decrease[i] <- ifelse(NTG_mult < 0, NTG_mult * (-1), 0)
+        hybrid.permute$increase[i] <- ifelse(NTG_mult > 0, NTG_mult, 0)
+        hybrid.permute$base[i] <- min(hybrid.permute$base[i-1], hybrid.permute$base[i-1] + NTG_mult)
+      } else if(hybrid.permute$variable[i]=="Net.XP"){
+        hybrid.permute$total[i] <- hybrid.permute$total[1]+sum(dfp$a)+ NTG_mult + NTG_multxa
+      }
     }
+    hybrid.permute$total[which(hybrid.permute$variable %ni% totalvars)] <-  NA
+    hybrid.permute$base[which(hybrid.permute$variable %in% totalvars)] <-  NA
+    hybrid.permute$a <- NULL
+  }
+    # get rid of Net XA bar and Gross.XP (if present), not shown in Hybrid
+    netvars <- c("Net.XA", "Gross.XP")
+    hybrid.permute <- hybrid.permute[which(hybrid.permute$variable %ni% netvars),]
+
   # make pretty variable titles
   niceTblLbl <- function(df) {
     df$variable[df$variable == "Gross.XA"] <- "Ex Ante Gross"

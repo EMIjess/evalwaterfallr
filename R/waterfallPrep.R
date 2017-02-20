@@ -1,4 +1,4 @@
-#' Prepares data for a waterfall plot
+#' Prepares mulitplicative data for a waterfall plot
 #'
 #'waterfallPrep() : a function that takes the data on the reported and evaluated savings values and returns the average permuted values of the multiplicative factors and prepare a data frame that is ready for the waterfall plot in R or Excel
 #'
@@ -25,7 +25,6 @@
 #'  altparamnames=c("ISR", "Dif Watts", "Daily Hours", "Control"),
 #'  output = "net")
 #'
-#' @return a data frame object
 waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
                           altparamnames = NULL,
                           output = "all") {
@@ -54,7 +53,8 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
 
   g <- wParamPermute(param.names = param.names, values = df[,2])
   # g has the order independent values for each parameter!!!!
-
+  # as of Feb 19, 2017, include ntg.rr in permutation with parameters
+  #g <- wParamPermute(param.names = c(param.names,"NTG.RR"), values = c(df[,2], NTG.eval/NTG.report))
   ########################################
   #
   # now permute the net/gross
@@ -253,20 +253,25 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     df$variable[df$variable == "NTG.RR"] <- "RR NTG"
     return(df)
   }
+  hybrid.permute <- none # FOR NOW
   none <- niceTblLbl(none)
   gross.permute <- niceTblLbl(gross.permute)
   net.permute <- niceTblLbl(net.permute)
+  hybrid.permute <- niceTblLbl(hybrid.permute) #todo
 
   # determine what to output from function
   if(output=="all"){
     return(list("No Permutatation" = none,
               "Gross Waterfall" = gross.permute,
-              "Net Waterfall" = net.permute))
+              "Net Waterfall" = net.permute,
+              "Hyrbrid Waterfall" = hybrid.permute))
   } else if(output=="none"){
     return(none)
   } else if(output=="gross"){
     return(gross.permute)
   } else if(output=="net"){
     return(net.permute)
-  }
+  } else if(output=="hybrid"){
+    return(hybrid.permute)
+    }
 } # end of function

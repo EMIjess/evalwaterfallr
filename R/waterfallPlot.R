@@ -3,7 +3,7 @@
 #'waterfallPlot() : a function that takes a dataframe and creates a waterfall plot as a ggplot2 object which can be further modified
 #'
 #' @param df a dataframe with columns 'variable' (character), 'total' (numeric),  'base' (numeric), 'increase' (numeric), and 'decrease' (numeric). can have additional columns, ignored. Assumed to have starting value as first row and ending value as last row.
-#' @param palette, default is c("#d7191c","#2b83ba")
+#' @param palette default is c("#CC3300","#009900") #websafe red and green
 #' @param xlab title the x axis, default is ""
 #' @param ylab title the y axis, default is ""
 #' @param xfactors label the x axis; must equal the number of variables, default is df$variable
@@ -91,7 +91,17 @@ waterfallPlot <- function(df,
     if(length(xfactors)==nrow(df)){
       myxlabels <- as.character(xfactors)
     } else {myxlabels=df$variable} #ignore if not the right length.
-  } else {myxlabels=as.character(df$variable)}
+  } else {
+    myxlabels=as.character(df$variable)
+    # go ahead and replace likely generic eval values for pretty print
+    myxlabels <- replace(myxlabels, myxlabels=="Gross.XA", "Ex Ante Gross")
+    myxlabels <- replace(myxlabels, myxlabels=="Gross.XP", "Ex Post Gross")
+    myxlabels <- replace(myxlabels, myxlabels=="Net.XA", "Ex Ante Net")
+    myxlabels <- replace(myxlabels, myxlabels=="Net.XP", "Ex Post Net")
+    myxlabels <- replace(myxlabels, myxlabels=="NTG.RR", "RR NTG")
+    myxlabels <- replace(myxlabels, myxlabels=="NTG.XA", "Ex Ante NTG")
+    myxlabels <- replace(myxlabels, myxlabels=="NTG.XP", "Ex Post NTG")
+  }
   ## end xfactors for labels
 
   ## wrap very long labels to make graph readable
@@ -118,7 +128,7 @@ waterfallPlot <- function(df,
   ## set up the limits and y axis labels
   # documentation for pretty here
   # https://stat.ethz.ch/R-manual/R-devel/library/base/html/pretty.html
-  mybreaks <- pretty(minvalue, maxvalue)
+  mybreaks <- pretty(c(minvalue, maxvalue))
 
   # make labels for the total bars
   # determine digits
@@ -143,7 +153,7 @@ waterfallPlot <- function(df,
   myvjust = ifelse(myxangle==90, 0.5, 0)
   myhjust = ifelse(myxangle==90, 1, .5)
   # fix the sizes
-  geom.text.size = 5
+  geom.text.size = 4
   theme.size = (19/5) * geom.text.size
 
   #plot

@@ -53,7 +53,7 @@ waterfallPlot <- function(df,
   }
   options(scipen=999) # avoid scientific notation
   ## Add the order column to the raw data frame and order appropriately
-  df <- row.names(df) <- NULL # if the data frame does not have sequential row names, odd spaces
+  row.names(df) <- NULL # if the data frame does not have sequential row names, odd spaces
   df <- cbind(df, order = as.numeric(rownames(df)))
   df <- transform(df, offset=offset)
 

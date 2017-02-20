@@ -51,49 +51,13 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   #
   ########################################
 
-  g <- wParamPermute(param.names = param.names, values = df[,2])
+  #g <- wParamPermute(param.names = param.names, values = df[,2])
   # g has the order independent values for each parameter!!!!
   # as of Feb 19, 2017, include ntg.rr in permutation with parameters
-  #g <- wParamPermute(param.names = c(param.names,"NTG.RR"), values = c(df[,2], NTG.eval/NTG.report))
-  ########################################
-  #
-  # now permute the net/gross
-  #
-  ########################################
-  sum.g <- sum(as.numeric(g$avg.xx))
-  net.tab.1 <- data.frame(
-    variable = c("GRR","NTG.RR"),
-    a = c(1+sum.g,NTG.eval/NTG.report)
-  )
-  net.tab.2 <- data.frame(
-    variable = c("NTG.RR", "GRR"),
-    a = c(NTG.eval/NTG.report,1+sum.g)
-  )
-  permutenet <- function(df){
-    df$b[1] <- df$a[1]
-    df$b[2] <- df$a[2]*df$b[1]
-    df$c[1] <- df$b[1]-1
-    df$c[2] <- df$b[2]-df$b[1]
-    return(df)
-  }
-  net.tab.1 <- permutenet(net.tab.1)
-  net.tab.2 <- permutenet(net.tab.2)
-  net.tab.tot <- data.frame(
-    variable = c("GRR","NTG.RR"),
-    a = c(1+sum.g,NTG.eval/NTG.report),
-    avg.p = c((net.tab.1$c[1]+net.tab.2$c[2])/2,(net.tab.1$c[2]+net.tab.2$c[1])/2)
-  )
-  if (sum.g != 0){
-    g2 <- data.frame(
-      param.names = param.names,
-      avg.p = as.numeric(g$avg.xx)*net.tab.tot$avg.p[1]/sum.g
-    )
-  } else {
-    g2 <- data.frame(
-      param.names = param.names,
-      avg.p = as.numeric(g$avg.xx)*1/NTG.report
-    )
-  }
+  gx <- wParamPermute(param.names = c(param.names,"NTG.RR"), values = c(df[,2], NTG.eval/NTG.report))
+  gh <- wParamPermute(param.names = c("NTG.XA",param.names,"NTG.RR"),
+                      values = c(NTG.report, df[,2], NTG.eval/NTG.report))
+
   ########################################
   #
   # Put the permuted DF together
@@ -189,9 +153,10 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
 
   net.permute$calc[net.permute$variable %in% param.names] <-
-    as.numeric(g2$avg.p)
+    as.numeric(gx$avg.xx[which(gx$param.names != "NTG.RR")])
+    #as.numeric(g2$avg.p)
   net.permute$calc[net.permute$variable == "NTG.XP"] <-
-    as.numeric(net.tab.tot$avg.p[2])
+    as.numeric(gx$avg.xx[which(gx$param.names == "NTG.RR")])
   net.permute$decrease <- ifelse(net.permute$calc < 0,
                                  net.permute$total[3] * net.permute$calc *
                                    (-1),
@@ -242,7 +207,53 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
            0)
   net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
 
+  # make hybrid.permute table for EXCEL Waterfall
+  # columns: total base decrease increase
+  hybrid.permute <-
+    filter(givendf, variable %ni% c("Gross.XP", "Net.XA")) %>% # remove vars
+    mutate(total = given) # get the first var, others will be overwritten
+
+  hybrid.permute$calc <- hybrid.permute$decrease <- hybrid.permute$increase <- hybrid.permute$base <- NA
+  hybrid.permute$calc[hybrid.permute$variable == "NTG.XA"] <-
+    #(-1)*(1-hybrid.permute$given[2])
+    as.numeric(gh$avg.xx[which(gh$param.names == "NTG.XA")])
+  hybrid.permute$calc[hybrid.permute$variable %in% param.names] <-
+    as.numeric(gh$avg.xx[which(gh$param.names %ni% c("NTG.XA","NTG.RR"))])
+  hybrid.permute$calc[hybrid.permute$variable == "NTG.XP"] <-
+    as.numeric(gh$avg.xx[which(gh$param.names == "NTG.RR")])
+  hybrid.permute$decrease <- ifelse(hybrid.permute$calc < 0,
+                                 hybrid.permute$total[1] * hybrid.permute$calc *
+                                   (-1),
+                                 0)
+  hybrid.permute$increase <- ifelse(hybrid.permute$calc > 0,
+                                 hybrid.permute$total[1] * hybrid.permute$calc,
+                                 0)
+  hybrid.permute$base[2] <- ifelse(hybrid.permute$decrease[2]==0,#an increase
+                                 hybrid.permute$total[1], # start with gross
+                                 hybrid.permute$total[1]-hybrid.permute$decrease[2])
+
+  for (i in 3:nrow(hybrid.permute)) {
+    if (hybrid.permute$variable[i] %in% c(param.names,"NTG.XP")) {
+      hybrid.permute$base[i] <- min(hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,hybrid.permute$increase[i-1]),
+                                   hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,
+                                            hybrid.permute$increase[i-1]) +
+                                     hybrid.permute$total[1] * hybrid.permute$calc[i])
+    }
+     }
+  hybrid.permute$total[which(hybrid.permute$variable == "Net.XP")] <-
+    hybrid.permute$total[1] +sum(hybrid.permute$increase, (-1)*hybrid.permute$decrease, na.rm=TRUE)
+  hybrid.permute$total <- ifelse(hybrid.permute$variable %in% totalvars,
+                              hybrid.permute$total,
+                              NA)
+  hybrid.permute$variable[hybrid.permute$variable == "NTG.XP"] <- "NTG.RR"
+
+  ##################################
+  #
   # make pretty variable titles
+  #
+  ###################################
   niceTblLbl <- function(df) {
     df$variable[df$variable == "Gross.XA"] <- "Ex Ante Gross"
     df$variable[df$variable == "NTG.XA"] <- "Ex Ante NTG"

@@ -129,6 +129,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     net.permute$total[which(net.permute$variable %ni% totalvars)] <-  NA
     net.permute$base[which(net.permute$variable %in% totalvars)] <-  NA
     net.permute$a <- NULL
+    net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
   }
 
   hybrid.permute <- if(NTG.report==1 & NTG.eval==1){
@@ -178,6 +179,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     # get rid of Net XA bar and Gross.XP (if present), not shown in Hybrid
     netvars <- c("Net.XA", "Gross.XP")
     hybrid.permute <- hybrid.permute[which(hybrid.permute$variable %ni% netvars),]
+    hybrid.permute$variable[hybrid.permute$variable == "NTG.XP"] <- "NTG.RR"
 
   # make pretty variable titles
   niceTblLbl <- function(df) {

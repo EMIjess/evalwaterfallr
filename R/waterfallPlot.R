@@ -133,8 +133,8 @@ waterfallPlot <- function(df,
 
   # make labels for the total bars
   # determine digits
-  mydigits <- ifelse(maxvalue<=1, 2,
-                     ifelse(maxvalue<=10,1,0))
+  mydigits <- ifelse(maxvalue <= 1, 2,
+                     ifelse(maxvalue <= 100, 1, 0))
   mydftext <- df %>%
     group_by(variable) %>%
     mutate(
@@ -143,7 +143,7 @@ waterfallPlot <- function(df,
                      ifelse(decrease == max(total, increase, decrease, na.rm=TRUE),"-","")),
       mytext = paste0(myneg,round(max(total, increase, decrease, na.rm=TRUE),
                      digits=mydigits)),
-      myy = max + 0.03*maxvalue
+      myy = max + 0.03*maxvalue #try out making below ribbon for neg.
     ) %>%
     select(variable, order, mytext, myy)
 

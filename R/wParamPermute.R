@@ -16,7 +16,7 @@
 
 wParamPermute <- function(param.names, values, n.cores = 2) {
   n_params <- length(param.names)
-  if (n_params > 10){ # too much
+  if (n_params > 11){ # too much  NOTE ntg.rr included when passed, so max is 11
     stop("Do you really have more than 10 multiplicative factors? This code can handle up to 10.", call. = FALSE)
   }
   permutations <- function(x, prefix = c()) {

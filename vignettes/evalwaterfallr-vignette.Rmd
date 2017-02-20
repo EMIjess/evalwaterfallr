@@ -20,10 +20,11 @@ knitr::opts_chunk$set(collapse = T, comment = "#>")
 #library(evalwaterfallr)
 source('~/Documents/R_working/evalwaterfallr/R/waterfallPlot.R')
 source('~/Documents/R_working/evalwaterfallr/R/waterfallPrep.R')
+source('~/Documents/R_working/evalwaterfallr/R/addwaterfallPrep.R')
 source('~/Documents/R_working/evalwaterfallr/R/wParamPermute.R')
 ```
 
-This document describes how to create order-independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Two of them are intended to be used directly: `waterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but that scenario it is not expected to occur often. 
+This document describes how to create order-independent permutations and waterfall graphics using evalwaterfallr. There are three functions in the package. Three of them are intended to be used directly: `waterfallPrep()`, `addwaterfallPrep()` and `waterfallPlot()`. The `wParamPermute()` function is called by `waterfallPrep()` and could be used on its own by some users, but that scenario it is not expected to occur often. 
 
 Permutations of mutliplicative parameters can be completed by straightforward maths, but are error prone and time consuming in spreadsheet applications. The time and risk increases with the number of parameters. A three parameter equation requires six permutations, but a four parameter equation requires 24. This package automates the permutation and creates tables that can be used for creating the waterfall plot (within the package) or exported for other uses. In addition, it extends the methods for additive parameters to ensure consistency in reporting for additive and multiplicative parameters.
 
@@ -49,11 +50,10 @@ rawparamdf <- data.frame( # lighting example
 
 rawparamdf
 ```
-By default, `waterfallPrep()` only requires the parameter table, and it will use defaults for key values and assume all tables of output are desired.
+By default, `waterfallPrep()` only requires the parameter table, and it will use defaults for key values and assume all tables of output are desired. The defaults are: `gross.report = 100`, `NTG.report = 1`, and `NTG.eval = 1`.
 
-```{r, echo=-2, warning=FALSE, message=FALSE}
+```{r, echo=-1, warning=FALSE, message=FALSE}
 library(dplyr)
-library(evalwaterfallr)
 waterfallPrep(rawparamdf)# minimal call
 
 
@@ -66,9 +66,8 @@ waterfallPrep(rawparamdf)# minimal call
 ```
 
 Alternatively, we can store one of the output tables, here: "gross".
-```{r, echo=-2, warning=FALSE, message=FALSE}
+```{r, echo=-1, warning=FALSE, message=FALSE}
 library(dplyr)
-library(evalwaterfallr)
 gross_tab <- waterfallPrep(rawparamdf, output="gross") 
 gross_tab
 ```
@@ -96,11 +95,35 @@ net_tab
 The output of `waterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
 
 ## addwaterfallPrep()
-This function creates the permutations for additive, rather than multiplicative parameters. The output of `addwaterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs.
- 
+This function creates the permutations for additive, rather than multiplicative parameters. The output of `addwaterfallPrep()` can be used directly by `waterfallPlot()` as shown below, or used in another software product, like Excel, to create desired graphs. The additive parameters have no permutation for the gross table, but are permuted with NTG realization rate for the net table and permuted with the NTG reported and NTG realization rate for the hybrid table. 
+
+```{r, echo=-1, warning=FALSE, message=FALSE}
+library(dplyr)
+
+# assume gross.report is 100, NTG.report = 0.8, and NTG.eval=0.6
+# assume our parameters are:
+addrawparamdf <- data.frame( # excel example
+                          params = c("A","B","C"),
+                          value = c(-30, 20, -40),
+                          stringsAsFactors = FALSE
+                         )
+
+add_tab <- addwaterfallPrep(addrawparamdf, 100, .8, .6,  
+                         output="all") 
+```
+
+We can see the gross, net, and hybrid permutation tables: 
+```{r}
+add_tab[[2]] # gross
+add_tab[[3]] # net
+add_tab[[4]] # hybrid
+```
+
+
 ## waterfallPlot()
 This is the waterfall plotting function. It is inspired by the code developed by James Kierstead [Post on Watefall Plots with UK Emissions Data](http://www.jameskeirstead.ca/blog/waterfall-plots-in-r/). `waterfallPlot()` assumes the input dataframe is already in order and creates fill categories based on the values in the table. Intermediate totals are plotted here, which are not possible with James' `waterfall()`. For data that are more categorical or do not require intermediate totals, check out his very useful [waterfall gist](https://gist.github.com/jkeirstead/df85c839bd8f0026ee05#file-waterfall-r).
 
+We can see the multiplicative net permutation table from the example above. 
 ```{r, echo=4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(scales)
@@ -108,11 +131,37 @@ library(dplyr)
 waterfallPlot(net_tab)
 ```
 
+What about all of the additive tables? 
+Gross
+```{r, echo=4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(scales)
+library(dplyr)
+waterfallPlot(add_tab[[2]])
+```
+Net
+```{r, echo=4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(scales)
+library(dplyr)
+waterfallPlot(add_tab[[3]])
+```
+Hybrid
+```{r, echo=4, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(scales)
+library(dplyr)
+waterfallPlot(add_tab[[4]])
+```
+
+
+Alternatively, we can send a table that we may have from outside this package.
+
 ```{r, fig.width=7, fig.height=6, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(scales)
 library(dplyr)
-# alternatively, we can send a table that we may have from outside this package
+# let's assume that we have rrdf and just want to plot it:
 rrdf <- data.frame( # made up example
          variable = c("Start","Factor 1","Factor 2","Factor 3","End"),
         total = c(100, rep(NA, 3), 75),

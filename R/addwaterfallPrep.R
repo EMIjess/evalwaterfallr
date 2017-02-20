@@ -89,8 +89,8 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
 
   # make net.permute table
   # columns: total base decrease increase
-  net.permute <- if(NTG.report==1 & NTG.eval==1){
-    gross.permute  #if NTG is 1, no permutation necessary!
+  if(NTG.report==1 & NTG.eval==1){
+    net.permute <- gross.permute  #if NTG is 1, no permutation necessary!
   }else{
     dfp <- df %>%
       mutate(a = .5 * value * (NTG.report + NTG.eval))
@@ -132,8 +132,8 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
   }
 
-  hybrid.permute <- if(NTG.report==1 & NTG.eval==1){
-    gross.permute  #if NTG is 1, no permutation necessary!
+  if(NTG.report==1 & NTG.eval==1){
+    hybrid.permute <- gross.permute  #if NTG is 1, no permutation necessary!
   }else{
     dfp <- df %>%
       mutate(a = (1/3) * value * (1+ NTG.eval + 0.5 *(NTG.report + NTG.eval/NTG.report)))

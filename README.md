@@ -110,6 +110,9 @@ lighting_all <- waterfallPrep(myparamdf,
                                 output="all")
 #> Warning: doParallel may make this function faster for large order
 #> permutations if it is installed.
+
+#> Warning: doParallel may make this function faster for large order
+#> permutations if it is installed.
 lighting_gross <- lighting_all[[2]]
 lighting_net <- lighting_all[[3]]
 ```

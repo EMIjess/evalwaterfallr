@@ -20,7 +20,7 @@ a dataframe with columns param.names (character) and avg.xx (numeric)
 This function is internal and used for creating order independent params
 }
 \note{
-Performance may be slow with large numbers of parameters. sytem.time elapsed       is 3 params ~ 0.011 | 5 params ~ 0.042 | 7 params ~ 1.741 | 8 params ~ 39.224
+Performance may be slow with large numbers of parameters. sytem.time elapsed is 3 params ~ 0.011 | 5 params ~ 0.042 | 7 params ~ 1.741 | 8 params ~ 39.224
 }
 \examples{
 wParamPermute(param.names = c("one", "hundred", "five"), values = c(1, 100, 5))

@@ -4,13 +4,13 @@
 \alias{waterfallPlot}
 \title{Makes a waterfall plot}
 \usage{
-waterfallPlot(df, palette = c("#d7191c", "#2b83ba"), xlab = "", ylab = "",
+waterfallPlot(df, palette = c("#CC3300", "#009900"), xlab = "", ylab = "",
   xfactors = NULL, offset = 0.3, xtextangle = 90)
 }
 \arguments{
 \item{df}{a dataframe with columns 'variable' (character), 'total' (numeric),  'base' (numeric), 'increase' (numeric), and 'decrease' (numeric). can have additional columns, ignored. Assumed to have starting value as first row and ending value as last row.}
 
-\item{palette, }{default is c("#d7191c","#2b83ba")}
+\item{palette}{default is c("#CC3300","#009900") #websafe red and green}
 
 \item{xlab}{title the x axis, default is ""}
 

@@ -146,12 +146,11 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   net.permute <-
     filter(givendf, variable %ni% "Gross.XP") %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
-
-  net.permute$total[3] <- net.permute$total[1] *
-    net.permute$total[2]
-  net.permute$calc <- NA
-  net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
-
+  # add some more colums
+    net.permute$calc <- net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
+  # calculate the Net XA
+  net.permute$total[3] <- net.permute$total[1] * net.permute$given[2]
+  # replace increase and decrease for NTG.XA after other terms
   net.permute$calc[net.permute$variable %in% param.names] <-
     as.numeric(gx$avg.xx[which(gx$param.names != "NTG.RR")])
     #as.numeric(g2$avg.p)
@@ -164,6 +163,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   net.permute$increase <- ifelse(net.permute$calc > 0,
                                  net.permute$total[3] * net.permute$calc,
                                  0)
+  # first param must be treated special
   net.permute$total[4] <- ifelse(net.permute$decrease[4]==0,#an increase
                                  net.permute$total[3],
                                  net.permute$total[3]*(1+net.permute$calc[4]))
@@ -185,26 +185,24 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
                                 net.permute$total[i-1]+net.permute$increase[i-1])
         }
   }
+  # deal with decrease/increase for NTG.XA
+  net.permute$decrease[2] <- ifelse(net.permute$given[2] < 1,
+                                 net.permute$total[1] - net.permute$total[3],
+                                 0)
+  net.permute$increase[2] <- ifelse(net.permute$given[2] > 1,
+                                 net.permute$total[3] - net.permute$total[1],
+                                 0)
+    net.permute$base[2] <-net.permute$total[2] <-  min(net.permute$total[1], net.permute$total[3]) # NTG base
+
     # excel requires no change in base for positive change
   net.permute$base <-
-    ifelse(net.permute$variable %in% c(totalvars,"NTG.XA"),
+    ifelse(net.permute$variable %in% c(totalvars),#,"NTG.XA"),
            NA,
            net.permute$total)
   net.permute$total <- ifelse(net.permute$variable %in% totalvars,
                               net.permute$total,
                               NA)
-  net.permute$base[net.permute$variable == "NTG.XA"] <-
-    net.permute$total[1] * net.permute$given[2]
-  net.permute$decrease[net.permute$variable == "NTG.XA"]  <-
-    ifelse(net.permute$given[net.permute$variable == "NTG.XA"] < 1,
-           net.permute$total[1] *
-             (1 - net.permute$given[net.permute$variable == "NTG.XA"]),
-           0)
-  net.permute$increase[net.permute$variable == "NTG.XA"]  <-
-    ifelse(net.permute$given[net.permute$variable == "NTG.XA"] > 1,
-           net.permute$total[1] *
-             (net.permute$given[net.permute$variable == "NTG.XA"] - 1) ,
-           0)
+
   net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
 
   # make hybrid.permute table for EXCEL Waterfall
@@ -212,10 +210,8 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   hybrid.permute <-
     filter(givendf, variable %ni% c("Gross.XP", "Net.XA")) %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
-
   hybrid.permute$calc <- hybrid.permute$decrease <- hybrid.permute$increase <- hybrid.permute$base <- NA
   hybrid.permute$calc[hybrid.permute$variable == "NTG.XA"] <-
-    #(-1)*(1-hybrid.permute$given[2])
     as.numeric(gh$avg.xx[which(gh$param.names == "NTG.XA")])
   hybrid.permute$calc[hybrid.permute$variable %in% param.names] <-
     as.numeric(gh$avg.xx[which(gh$param.names %ni% c("NTG.XA","NTG.RR"))])
@@ -265,7 +261,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     df$variable[df$variable == "NTG.RR"] <- "RR NTG"
     return(df)
   }
-  hybrid.permute <- none # FOR NOW
+
   none <- niceTblLbl(none)
   gross.permute <- niceTblLbl(gross.permute)
   net.permute <- niceTblLbl(net.permute)

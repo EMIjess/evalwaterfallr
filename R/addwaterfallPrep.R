@@ -100,8 +100,8 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     # set up empty table
     net.permute$decrease <- net.permute$increase <- net.permute$base <- NA
     # calculate Net.XA
-    net.permute$total[3] <- net.permute$total[1] * net.permute$total[2]
-    net.permute$base[2] <-  net.permute$base[3] <- min(net.permute$total[1], net.permute$total[3])
+    net.permute$total[3] <- net.permute$base[3] <- net.permute$total[1] * net.permute$total[2]
+    net.permute$base[2] <-  min(net.permute$total[1], net.permute$total[3])
     net.permute$increase[2] <- ifelse(net.permute$given[2] < 1, 0, net.permute$total[3]-net.permute$total[1])
     net.permute$decrease[2] <- ifelse(net.permute$given[2] > 1, 0, net.permute$total[1]-net.permute$total[3])
     for (i in 4:nrow(net.permute)) {
@@ -145,8 +145,8 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     # calculate Net.XA
     NTG_multxa <- (1/3)*(NTG.report-1)*
           ((3/2)*gross.report * (1+NTG.eval/NTG.report) + sum(df$value) * (.5 + NTG.eval/NTG.report))
-    hybrid.permute$total[3] <- hybrid.permute$total[1] + NTG_multxa
-    hybrid.permute$base[2] <-  hybrid.permute$base[3] <- min(hybrid.permute$total[1], hybrid.permute$total[3])
+    hybrid.permute$total[3] <-  hybrid.permute$base[3]<- hybrid.permute$total[1] + NTG_multxa
+    hybrid.permute$base[2]  <- min(hybrid.permute$total[1], hybrid.permute$total[3])
     hybrid.permute$increase[2] <- ifelse(NTG.report < 1, 0, hybrid.permute$total[3]-hybrid.permute$total[1])
     hybrid.permute$decrease[2] <- ifelse(NTG.report > 1, 0, hybrid.permute$total[1]-hybrid.permute$total[3])
     for (i in 4:nrow(hybrid.permute)) {

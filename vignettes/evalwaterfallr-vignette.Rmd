@@ -2,19 +2,15 @@
 title: "evalwaterfallr"
 author: "JC"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-keep_md: true
-vignette: >
-  %\VignetteIndexEntry{evalwaterfallr}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: html_document
   
 ---
 
 ```{r setup, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 options(scipen=999) # avoid scientific notation
 library(knitr)
-knitr::opts_knit$set(upload.fun = image_uri) #embed the images
+knitr::opts_chunk$set(fig.path='Figs/')
+#knitr::opts_knit$set(upload.fun = image_uri) #embed the images
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 
 #library(evalwaterfallr)

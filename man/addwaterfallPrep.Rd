@@ -27,17 +27,17 @@ if output is "all", returns a list of 4 dataframes. Else, if output is "gross","
 addwaterfallPrep() : a function that takes the data on the reported and evaluated savings values and returns the average permuted values of the additive factors and prepare a data frame that is ready for the waterfall plot in R or Excel
 }
 \examples{
- rawparamdf <- data.frame( # lighting example
-                         params = c("ISR","deltaWatts","HOU","x"),
-                         value = c(0.5, 0.7, 1.2, 1.5),
+ addrawparamdf <- data.frame( # lighting example
+                         params = c("A","B","C"),
+                         value = c(10, -20, 25),
                          stringsAsFactors = FALSE
                         )
  #assume gross.report is 200, NTG.report is 0.6 & NTG.eval is 0.8
- waterfallPrep(rawparamdf, 200, 0.6, 0.8)
+ addwaterfallPrep(rawparamdf, 200, 0.6, 0.8)
 
  #To just get the net permute table and rename the variables, example
- waterfallPrep(rawparamdf, 200, 0.6, 0.8,
- altparamnames=c("ISR", "Dif Watts", "Daily Hours", "Control"),
+ addwaterfallPrep(rawparamdf, 200, 0.6, 0.8,
+ altparamnames=c("Prog A", "Prog B", "Prog C"),
  output = "net")
 
 }

@@ -89,9 +89,9 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
 
   # make net.permute table
   # columns: total base decrease increase
-  if(NTG.report==1 & NTG.eval==1){
-    net.permute <- gross.permute  #if NTG is 1, no permutation necessary!
-  }else{
+#  if(NTG.report==1 & NTG.eval==1){
+#    net.permute <- gross.permute  #if NTG is 1, no permutation necessary!
+#  }else{
     dfp <- df %>%
       mutate(a = .5 * value * (NTG.report + NTG.eval))
     net.permute <- filter(givendf, variable %ni% "Gross.XP")  # remove vars
@@ -130,11 +130,11 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     net.permute$base[which(net.permute$variable %in% totalvars)] <-  NA
     net.permute$a <- NULL
     net.permute$variable[net.permute$variable == "NTG.XP"] <- "NTG.RR"
-  }
+ # }
 
-  if(NTG.report==1 & NTG.eval==1){
-    hybrid.permute <- gross.permute  #if NTG is 1, no permutation necessary!
-  }else{
+  # if(NTG.report==1 & NTG.eval==1){
+  #   hybrid.permute <- gross.permute  #if NTG is 1, no permutation necessary!
+  # }else{
     dfp <- df %>%
       mutate(a = (1/3) * value * (1+ NTG.eval + 0.5 *(NTG.report + NTG.eval/NTG.report)))
     hybrid.permute <- filter(givendf, variable %ni% "Gross.XP")  # remove vars
@@ -175,7 +175,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
     hybrid.permute$total[which(hybrid.permute$variable %ni% totalvars)] <-  NA
     hybrid.permute$base[which(hybrid.permute$variable %in% totalvars)] <-  NA
     hybrid.permute$a <- NULL
-  }
+  #}
     # get rid of Net XA bar and Gross.XP (if present), not shown in Hybrid
     netvars <- c("Net.XA", "Gross.XP")
     hybrid.permute <- hybrid.permute[which(hybrid.permute$variable %ni% netvars),]

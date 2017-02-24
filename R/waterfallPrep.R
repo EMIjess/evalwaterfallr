@@ -250,7 +250,7 @@ waterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   # make pretty variable titles
   #
   ###################################
-  gross.permute$calc <- net.permute$calc <- NULL
+  gross.permute$calc <- net.permute$calc <- hybrid.permute$calc <- NULL
   niceTblLbl <- function(df) {
     df$variable[df$variable == "Gross.XA"] <- "Ex Ante Gross"
     df$variable[df$variable == "NTG.XA"] <- "Ex Ante NTG"

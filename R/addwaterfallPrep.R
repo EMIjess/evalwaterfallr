@@ -12,17 +12,17 @@
 #' @import dplyr
 #' @export
 #' @examples
-#'  rawparamdf <- data.frame( # lighting example
-#'                          params = c("ISR","deltaWatts","HOU","x"),
-#'                          value = c(0.5, 0.7, 1.2, 1.5),
+#'  addrawparamdf <- data.frame( # lighting example
+#'                          params = c("A","B","C"),
+#'                          value = c(10, -20, 25),
 #'                          stringsAsFactors = FALSE
 #'                         )
 #'  #assume gross.report is 200, NTG.report is 0.6 & NTG.eval is 0.8
-#'  waterfallPrep(rawparamdf, 200, 0.6, 0.8)
+#'  addwaterfallPrep(rawparamdf, 200, 0.6, 0.8)
 #'
 #'  #To just get the net permute table and rename the variables, example
-#'  waterfallPrep(rawparamdf, 200, 0.6, 0.8,
-#'  altparamnames=c("ISR", "Dif Watts", "Daily Hours", "Control"),
+#'  addwaterfallPrep(rawparamdf, 200, 0.6, 0.8,
+#'  altparamnames=c("Prog A", "Prog B", "Prog C"),
 #'  output = "net")
 #'
 addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
@@ -55,7 +55,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
 
   # data in givendf, g, pg
   `%ni%` <- Negate(`%in%`)  # not in operator
-  totalvars <- givendf$variable[grepl("^Gr|Ne", givendf$variable)]
+  totalvars <- givendf$variable[which(grepl("^Gr|Ne", givendf$variable))]
 
   # make the NO PERMUTATION TABLE for EXCEL Waterfall
   # columns: total base decrease increase

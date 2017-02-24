@@ -35,8 +35,9 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   }
   # check that data will be valid
   n_params <- nrow(df)
-  # remove handling params warnings, in wParamPermute()
-
+  # replace df with just 2 cols we need and right names
+  df <- df[,1:2]
+  names(df) <- c("params", "value")
   # get the parameter labels correct
   if(!is.null(altparamnames)){
     # check to ensure same length
@@ -61,7 +62,8 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   # columns: total base decrease increase
   nonedropvars <- c("Net.XA", "NTG.XA")
   NTG_mult <- NTG.eval*(gross.report + sum(df$value)) - (gross.report + sum(df$value))
-  none <- filter(givendf, variable %ni% nonedropvars) %>% # remove vars
+  none <- givendf %>%
+    filter(variable %ni% nonedropvars) %>% # remove vars
     mutate(total = given) # get the first var, others will be overwritten
   none$decrease <- none$increase <- none$base <- NA
   for (i in 2:nrow(none)) {
@@ -92,6 +94,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
 #  if(NTG.report==1 & NTG.eval==1){
 #    net.permute <- gross.permute  #if NTG is 1, no permutation necessary!
 #  }else{
+
     dfp <- df %>%
       mutate(a = .5 * value * (NTG.report + NTG.eval))
     net.permute <- filter(givendf, variable %ni% "Gross.XP")  # remove vars

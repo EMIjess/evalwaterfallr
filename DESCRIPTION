@@ -1,7 +1,7 @@
 Package: evalwaterfallr
 Type: Package
 Title: Rearranges Multiplicative Factors into an Order-independent Waterfall
-Version: 1.0.20
+Version: 1.0.21
 Date: 2017-02-20
 Authors@R: c(person("Jess", "Chandler", role = c("aut", "cre"), email = "jchandler@emiconsulting.com"),
               person("Mike", "Hamilton", role = "ctb"),

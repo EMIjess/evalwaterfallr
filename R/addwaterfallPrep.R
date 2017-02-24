@@ -121,7 +121,11 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
         NTG_mult <- 0.5*((NTG.eval/NTG.report)-1)*(2*NTG.report*gross.report + NTG.report*sum(df$value))
         net.permute$decrease[i] <- ifelse(NTG_mult < 0, NTG_mult * (-1), 0)
         net.permute$increase[i] <- ifelse(NTG_mult > 0, NTG_mult, 0)
-        net.permute$base[i] <- min(net.permute$base[i-1], net.permute$base[i-1] + NTG_mult)
+        net.permute$base[i] <- min(net.permute$base[i-1] +
+                                     ifelse(is.na(net.permute$increase[i-1]),0,net.permute$increase[i-1]),
+                                   net.permute$base[i-1] +
+                                     ifelse(is.na(net.permute$increase[i-1]),0,
+                                            net.permute$increase[i-1]) + NTG_mult)
       } else if(net.permute$variable[i]=="Net.XP"){
         net.permute$total[i] <- net.permute$total[3]+sum(dfp$a)+ NTG_mult
       }
@@ -167,7 +171,11 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
           ((3/2)*gross.report * (1+NTG.report) + sum(df$value) * (.5 + NTG.report))
         hybrid.permute$decrease[i] <- ifelse(NTG_mult < 0, NTG_mult * (-1), 0)
         hybrid.permute$increase[i] <- ifelse(NTG_mult > 0, NTG_mult, 0)
-        hybrid.permute$base[i] <- min(hybrid.permute$base[i-1], hybrid.permute$base[i-1] + NTG_mult)
+         hybrid.permute$base[i] <- min(hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,hybrid.permute$increase[i-1]),
+                                   hybrid.permute$base[i-1] +
+                                     ifelse(is.na(hybrid.permute$increase[i-1]),0,
+                                            hybrid.permute$increase[i-1]) + NTG_mult)
       } else if(hybrid.permute$variable[i]=="Net.XP"){
         hybrid.permute$total[i] <- hybrid.permute$total[1]+sum(dfp$a)+ NTG_mult + NTG_multxa
       }
@@ -195,7 +203,7 @@ addwaterfallPrep <- function(df, gross.report=100, NTG.report=1, NTG.eval=1,
   none <- niceTblLbl(none)
   gross.permute <- niceTblLbl(gross.permute)
   net.permute <- niceTblLbl(net.permute)
-  hybrid.permute <- niceTblLbl(hybrid.permute) #todo
+  hybrid.permute <- niceTblLbl(hybrid.permute)
 
   # determine what to output from function
   if(output=="all"){

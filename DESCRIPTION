@@ -1,9 +1,9 @@
 Package: evalwaterfallr
 Type: Package
 Title: Rearranges Multiplicative Factors into an Order-independent Waterfall
-Version: 1.0.21
-Date: 2017-02-20
-Authors@R: c(person("Jess", "Chandler", role = c("aut", "cre"), email = "jchandler@emiconsulting.com"),
+Version: 1.0.22
+Date: 2017-03-15
+Authors@R: c(person("Jess", "Chandler", role = c("aut", "cre"), email = "admin@emiconsulting.com"),
               person("Mike", "Hamilton", role = "ctb"),
               person("Adam", "Sheer", role = "ctb"),
 	            person("Rob", "Kasman", role = "ctb"))
@@ -11,7 +11,7 @@ Author: Jess Chandler [aut, cre],
     Mike Hamilton [ctb],
     Adam Sheer [ctb],
     Rob Kasman [ctb]
-Maintainer: Jess Chandler <jchandler@emiconsulting.com>
+Maintainer: EMI Consulting <admin@emiconsulting.com>
 Description: Rearranges Multiplicative Factors into an Order-independent
     Waterfall. It organized program and portfolio data into the format necessary for
     plotting and also plots program and portfolio order independent waterfalls.
